@@ -5,7 +5,7 @@
 
 "area: firmware":
   - changed-files:
-    - any-glob-to-any-file: ['firmware-builds/**', 'src/**']
+    - any-glob-to-any-file: ['firmware-builds/**', 'src/**', 'firmware/**']
 
 "area: hardware":
   - changed-files:
