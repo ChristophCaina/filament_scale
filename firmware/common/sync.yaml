@@ -36,8 +36,8 @@ globals:
     initial_value: '""'
 
 # -- Detect backend on boot --
-esphome:
-  on_boot:
+#esphome:
+#  on_boot:
 #    priority: -100
 #    then:
 #      - script.execute: script_detect_backend
