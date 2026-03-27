@@ -43,8 +43,8 @@ body:
     id: esphome_version
     attributes:
       label: "ESPHome Version"
-      description: "Which version are you using? (e.g., 2024.2.2) / Welche Version nutzt du?"
-      placeholder: "2024.x.x"
+      description: "Which version are you using? (e.g., 2026.3.1) / Welche Version nutzt du?"
+      placeholder: "2026.x.x"
     validations:
       required: true
 
