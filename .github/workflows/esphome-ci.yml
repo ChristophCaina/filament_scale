@@ -93,7 +93,7 @@ jobs:
           fi
           
           # Zielname mit der Version aus der manifest_scale.json
-          TARGET_NAME="filament-scale-v${{ env.APP_VERSION }}.bin"
+          TARGET_NAME="filament-scale.bin"
           cp "$REAL_BIN" "./$TARGET_NAME"
           
           # Pfad für den nächsten Schritt speichern
