@@ -28,7 +28,7 @@
     .back-link { color: var(--accent2); text-decoration: none; font-family: var(--mono); font-size: 0.8rem; }
     
     /* Markdown Styling */
-    #md-content h1, #md-content h2, #md-content h3 { font-family: var(--mono); color: var(--accent); margin: 1.5rem 0 1rem; }
+    #md-content h1, #md-content h2, #md-content h3 { font-family: var(--mono); color: var(--accent); margin: 1.5rem 0 1rem; scroll-margin-top: 2rem;}
     #md-content code { font-family: var(--mono); background: rgba(255,255,255,0.06); padding: .2rem .4rem; border-radius: 3px; color: var(--accent2); }
     #md-content pre { background: var(--surface); padding: 1rem; border: 1px solid var(--border); overflow-x: auto; margin: 1rem 0; }
     #md-content a { color: var(--accent2); }
@@ -46,23 +46,46 @@
   <script>
     // Funktion zum Laden der MD-Datei basierend auf der URL (z.B. docs.html?file=calibration)
     const urlParams = new URLSearchParams(window.location.search);
-    const fileName = urlParams.get('file') || 'README'; // Standardmäßig README laden
-    
-    // Pfad zu deinen Markdown-Dateien im Repo (RAW-Link)
-    const mdUrl = `https://raw.githubusercontent.com/christophcaina/filament_scale/main/${fileName === 'README' ? 'README.md' : 'docs/' + fileName + '.md'}`;
+const fileName = urlParams.get('file') || 'README';
+const mdUrl = fileName === 'README' 
+  ? `https://raw.githubusercontent.com/christophcaina/filament_scale/main/README.md`
+  : `https://raw.githubusercontent.com/christophcaina/filament_scale/main/docs/${fileName}.md`;
 
-    fetch(mdUrl)
-      .then(response => {
-        if (!response.ok) throw new Error('File not found');
-        return response.text();
-      })
-      .then(markdown => {
-        document.getElementById('md-content').innerHTML = marked.parse(markdown);
-        document.title = `${fileName} - ESPHome Scale Docs`;
-      })
-      .catch(err => {
-        document.getElementById('md-content').innerHTML = `<h1>Error</h1><p>Could not load ${fileName}.md. Please check if the file exists in the repository.</p>`;
+fetch(mdUrl)
+  .then(response => {
+    if (!response.ok) throw new Error('File not found');
+    return response.text();
+  })
+  .then(markdown => {
+    // Rendern des Markdowns
+    document.getElementById('md-content').innerHTML = marked.parse(markdown);
+    
+    // Anker-Fix: Wenn ein Hash in der URL ist (z.B. #german), scrolle dorthin
+    if (window.location.hash) {
+      const targetId = decodeURIComponent(window.location.hash.substring(1));
+      const element = document.getElementById(targetId);
+      if (element) {
+        setTimeout(() => element.scrollIntoView({ behavior: 'smooth' }), 100);
+      }
+    }
+
+    // Interne Anker-Links abfangen, damit sie innerhalb der geladenen Seite scrollen
+    document.querySelectorAll('#md-content a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = decodeURIComponent(this.getAttribute('href').substring(1));
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+          // Update URL Hash ohne Neuladen
+          history.pushState(null, null, `#${targetId}`);
+        }
       });
+    });
+  })
+  .catch(err => {
+    document.getElementById('md-content').innerHTML = `<h1>Error</h1><p>Could not load ${fileName}.md.</p>`;
+  });
   </script>
 </body>
 </html>
