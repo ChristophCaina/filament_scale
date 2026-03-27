@@ -57,8 +57,8 @@ binary_sensor:
                 case 1:  // Tare
                   id(btn_tare).press();
                   break;
-                case 3:  // Spoolman sync
-                  id(btn_sync_spoolman).press();
+                case 3:  // sync
+                  id(btn_sync).press();
                   break;
                 case 4:  // Winder toggle
                   id(btn_winder_toggle).press();
