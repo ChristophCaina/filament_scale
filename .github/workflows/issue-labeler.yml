@@ -17,24 +17,23 @@ jobs:
             const title = context.payload.issue.title.toLowerCase();
             const labels = [];
 
-            // 1. Logik für Firmware & API
-            if (body.includes('firmware') || body.includes('integration')) 
-              labels.push('area: firmware');
+            // 1. Firmware & API (Multi-lang)
+            if (body.includes('firmware') || body.includes('integration') || body.includes('esp32')) 
+            labels.push('area: firmware');
 
-            // 2. Logik für Hardware
-            if (body.includes('hardware (3d-druck') || body.includes('mechanik')) 
-              labels.push('area: hardware');
+            // 2. Hardware (Multi-lang)
+            if (body.includes('hardware') || body.includes('3d-print') || body.includes('mechanik') || body.includes('wiring')) 
+            labels.push('area: hardware');
 
-            // 3. Logik für Dokumentation & Web
-            if (body.includes('dokumentation') || body.includes('web-interface') || body.includes('anleitung')) 
-              labels.push('area: documentation');
+            // 3. Documentation & Web (Multi-lang)
+            if (body.includes('doc') || body.includes('web') || body.includes('readme') || body.includes('anleitung')) 
+            labels.push('area: documentation');
 
-            // 4. Standard-Typen absichern (falls Keywords im Titel)
-            if (title.includes('bug') || body.includes('fehler')) labels.push('bug');
-            if (title.includes('feature') || title.includes('wunsch')) labels.push('enhancement');
-            if (title.includes('frage') || title.includes('?')) labels.push('question');
+            // 4. Standard-Typen (Keywords)
+            if (title.includes('bug') || body.includes('fehler') || title.includes('fix')) labels.push('bug');
+            if (title.includes('feature') || title.includes('wunsch') || title.includes('add')) labels.push('enhancement');
+            if (title.includes('frage') || title.includes('?') || title.includes('how')) labels.push('question');
 
-            // Dubletten entfernen und Labels setzen
             const uniqueLabels = [...new Set(labels)];
             if (uniqueLabels.length > 0) {
               await github.rest.issues.addLabels({
