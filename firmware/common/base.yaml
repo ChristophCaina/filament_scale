@@ -65,3 +65,36 @@ script:
     then:
       - rtttl.play:
           rtttl: "error:d=4,o=5,b=100:16c5,16b4"
+
+sensor:
+  - platform: wifi_signal
+    name: "WLAN Signalstärke"
+    id: wifi_signal_strength
+    update_interval: 60s
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP Adresse"
+      id: wifi_info_ip
+    ssid:
+      name: "SSID"
+      id: wifi_info_ssid
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: ${winder_connection_pin}
+      mode: INPUT_PULLUP
+      inverted: true
+    id: addon_connected
+    name: "Winder Addon Status"
+
+time:
+  - platform: homeassistant
+    id: esptime
+
+status_led:
+  pin:
+    number: ${status_led_pin}
+    inverted: true
