@@ -36,10 +36,12 @@ script:
           on_response:
             then:
               - lambda: |-
-                  if (status_code == 200 || status_code == 201) {
-                    ESP_LOGI("filaman", "Sync OK");
-                    id(beep_confirm).execute();
-                  } else {
-                    ESP_LOGW("filaman", "Sync failed: %d", status_code);
-                    id(beep_error).execute();
-                  }
+                  [](int status_code){
+                    if (status_code == 200 || status_code == 201) {
+                      ESP_LOGI("filaman", "Sync OK");
+                      id(beep_confirm).execute();
+                    } else {
+                      ESP_LOGW("filaman", "Sync failed: %d", status_code);
+                      id(beep_error).execute();
+                    }
+                  }(status_code);

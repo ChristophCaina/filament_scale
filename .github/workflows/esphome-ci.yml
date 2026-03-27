@@ -36,14 +36,14 @@ jobs:
           EOF
 
       - name: Validate ESPHome Config
-        run: esphome config firmware/test-all.yaml
+        run: esphome config firmware/example_config.yaml
 
   build-release:
-    needs: validate # Erst validieren, dann bauen
+    needs: validate
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
-      contents: write # Wichtig, um das Release zu erstellen
+      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -53,29 +53,60 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install ESPHome
-        run: pip install esphome
+      - name: Install ESPHome & jq
+        run: |
+          pip install esphome
+          sudo apt-get update && sudo apt-get install jq -y
 
+      - name: Extract Version from Manifest
+        id: get_version
+        run: |
+          # Holt die Version aus der manifest.json im Hauptverzeichnis
+          VERSION=$(jq -r '.version' installer/manifest_scale.json)
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Detected Version from manifest: $VERSION"
+      
       - name: Create dummy secrets.yaml (Build)
         run: |
           cat <<EOF > firmware/secrets.yaml
           wifi_ssid: 'dummy'
-          wifi_password: 'dummy'
+          wifi_password: 'dummy123'
           spoolman_ip: '127.0.0.1'
           api_key: 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE='
+          ota_password: '123'
           github_url: 'github://${{ github.repository }}/firmware/example_config.yaml'
           EOF
 
       - name: Compile Firmware
         run: esphome compile firmware/example_config.yaml
 
+      - name: Find and Prepare Binary
+        shell: bash
+        run: |
+          # Sucht automatisch die erzeugte firmware.bin im build-Verzeichnis
+          # Das macht den Workflow robust gegen Namensänderungen in der YAML
+          REAL_BIN=$(find firmware/.esphome/build -name "firmware.bin" | head -n 1)
+          
+          if [ -z "$REAL_BIN" ]; then
+            echo "Error: Compiled firmware.bin not found!"
+            exit 1
+          fi
+          
+          # Zielname mit der Version aus der manifest_scale.json
+          TARGET_NAME="filament-scale-v${{ env.APP_VERSION }}.bin"
+          cp "$REAL_BIN" "./$TARGET_NAME"
+          
+          # Pfad für den nächsten Schritt speichern
+          echo "TARGET_BIN_PATH=./$TARGET_NAME" >> $GITHUB_ENV
+          echo "Prepared Binary: $TARGET_NAME"
+
       - name: Create Release and Upload Asset
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            firmware/.esphome/build/filament-scale-example/.pioenvs/filament-scale-example/firmware.bin
-          name: Release ${{ github.ref_name }}
-          body: "Automatischer Build der Firmware Version ${{ github.ref_name }}"
+          files: ${{ env.TARGET_BIN_PATH }}
+          name: "Release v${{ env.APP_VERSION }}"
+          body: "Automatischer Build basierend auf installer/manifest_scale.json. Version: ${{ env.APP_VERSION }}"
+          tag_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
         env:
