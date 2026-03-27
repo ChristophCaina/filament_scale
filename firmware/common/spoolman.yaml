@@ -58,10 +58,12 @@ script:
           on_response:
             then:
               - lambda: |-
-                  if (status_code == 200) {
-                    ESP_LOGI("spoolman", "Sync OK");
-                    id(beep_confirm).execute();
-                  } else {
-                    ESP_LOGW("spoolman", "Sync failed: %d", status_code);
-                    id(beep_error).execute();
-                  }
+                  [](int status_code){
+                    if (status_code == 200) {
+                      ESP_LOGI("spoolman", "Sync OK");
+                      id(beep_confirm).execute();
+                    } else {
+                      ESP_LOGW("spoolman", "Sync failed: %d", status_code);
+                      id(beep_error).execute();
+                    }
+                  }(status_code);
