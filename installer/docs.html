@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation - ESPHome Filament Scale</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Wir nutzen deine Variablen für konsistentes Design */
+    :root {
+      --bg: #0f1117; --surface: #181c27; --border: #2a2f3f;
+      --accent: #f5a623; --accent2: #4fc3f7; --text: #e8eaf0;
+      --muted: #6b7280; --mono: 'Space Mono', monospace; --sans: 'DM Sans', sans-serif;
+    }
+    body {
+      background: var(--bg); color: var(--text); font-family: var(--sans);
+      line-height: 1.6; padding: 2rem; display: flex; flex-direction: column; align-items: center;
+    }
+    /* Grid Hintergrund wie auf der Hauptseite */
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(79,195,247,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(79,195,247,.04) 1px, transparent 1px);
+      background-size: 40px 40px; z-index: -1;
+    }
+    .content-wrapper { width: 100%; max-width: 780px; z-index: 1; }
+    header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+    .back-link { color: var(--accent2); text-decoration: none; font-family: var(--mono); font-size: 0.8rem; }
+    
+    /* Markdown Styling */
+    #md-content h1, #md-content h2, #md-content h3 { font-family: var(--mono); color: var(--accent); margin: 1.5rem 0 1rem; }
+    #md-content code { font-family: var(--mono); background: rgba(255,255,255,0.06); padding: .2rem .4rem; border-radius: 3px; color: var(--accent2); }
+    #md-content pre { background: var(--surface); padding: 1rem; border: 1px solid var(--border); overflow-x: auto; margin: 1rem 0; }
+    #md-content a { color: var(--accent2); }
+    #md-content img { max-width: 100%; border: 1px solid var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="content-wrapper">
+    <header>
+      <a href="index.html" class="back-link">← Back to Installer</a>
+    </header>
+    <div id="md-content">Loading Documentation...</div>
+  </div>
+
+  <script>
+    // Funktion zum Laden der MD-Datei basierend auf der URL (z.B. docs.html?file=calibration)
+    const urlParams = new URLSearchParams(window.location.search);
+    const fileName = urlParams.get('file') || 'README'; // Standardmäßig README laden
+    
+    // Pfad zu deinen Markdown-Dateien im Repo (RAW-Link)
+    const mdUrl = `https://raw.githubusercontent.com/christophcaina/filament_scale/main/${fileName === 'README' ? 'README.md' : 'docs/' + fileName + '.md'}`;
+
+    fetch(mdUrl)
+      .then(response => {
+        if (!response.ok) throw new Error('File not found');
+        return response.text();
+      })
+      .then(markdown => {
+        document.getElementById('md-content').innerHTML = marked.parse(markdown);
+        document.title = `${fileName} - ESPHome Scale Docs`;
+      })
+      .catch(err => {
+        document.getElementById('md-content').innerHTML = `<h1>Error</h1><p>Could not load ${fileName}.md. Please check if the file exists in the repository.</p>`;
+      });
+  </script>
+</body>
+</html>
