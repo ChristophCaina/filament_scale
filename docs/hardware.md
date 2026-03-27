@@ -14,7 +14,7 @@ This document covers the hardware components used in this project, their wiring,
 | :--- | :--- | :---: |
 | ESP32 Dev Board | e.g. ESP32-WROOM-32 (38-pin) | 1 |
 | HX711 Load Cell Amplifier | 24-bit ADC for load cells | 1 |
-| Load Cell (Wägezelle) | 1–5 kg, half-bridge or full-bridge | 1 |
+| Load Cell* | 1–7 kg, half-bridge or full-bridge | 1 |
 | ST7920 LCD | 128×64, SPI mode | 1 |
 | Rotary Encoder | With push-button (KY-040 or similar) | 1 |
 | Passive Buzzer | 3.3 V compatible | 1 |
@@ -26,6 +26,13 @@ This document covers the hardware components used in this project, their wiring,
 | Resistor 330 Ω | Current limiting for LED | 1 |
 | Power Supply | 5 V / 2 A USB or barrel jack | 1 |
 
+> #### **Dimensions for the Load Cell**
+> * **Overall Dimensions:** 80 mm x 12.7 mm x 12.7 mm
+> * **Mounting Holes:** 4 x M4 or M5 (depending on model)
+> * **Hole Spacing (Center to Center):**
+>   * **Side A (Fixed Base):** 15 mm
+>   * **Side B (Load End):** 15 mm
+>   * **Distance between inner holes:** 40 mm
 ---
 
 ## Pinout Overview
@@ -144,7 +151,7 @@ Dieses Dokument beschreibt die verwendeten Hardware-Komponenten, ihre Verdrahtun
 | :--- | :--- | :---: |
 | ESP32 Dev Board | z. B. ESP32-WROOM-32 (38-polig) | 1 |
 | HX711 Wägezellenmodul | 24-Bit-ADC für Wägezellen | 1 |
-| Wägezelle | 1–5 kg, Halb- oder Vollbrücke | 1 |
+| Wägezelle* | 1–7 kg, Halb- oder Vollbrücke | 1 |
 | ST7920 LCD | 128×64, SPI-Modus | 1 |
 | Drehgeber | Mit Druckknopf (KY-040 o. ä.) | 1 |
 | Passiver Summer | 3,3 V kompatibel | 1 |
@@ -155,6 +162,14 @@ Dieses Dokument beschreibt die verwendeten Hardware-Komponenten, ihre Verdrahtun
 | Status-LED | 3 mm oder 5 mm, beliebige Farbe | 1 |
 | Widerstand 330 Ω | Strombegrenzung für LED | 1 |
 | Netzteil | 5 V / 2 A USB oder Hohlbuchse | 1 |
+
+> > #### **Abmessungen für die Wägezelle**
+> * **Gesamtmaße:** 80 mm x 12,7 mm x 12,7 mm
+> * **Bohrungen:** 4 x M4 oder M5 (je nach Modell)
+> * **Lochabstände (Mitte zu Mitte):**
+>   * **Seite A (Befestigung):** 15 mm
+>   * **Seite B (Lastaufnahme):** 15 mm
+>   * **Abstand zwischen den inneren Löchern:** 40 mm
 
 ---
 
