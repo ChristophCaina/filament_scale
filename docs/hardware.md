@@ -12,17 +12,16 @@ This document covers the hardware components used in this project, their wiring,
 
 | Component | Description | Qty |
 | :--- | :--- | :---: |
-| ESP32 Dev Board | e.g. ESP32-WROOM-32 (38-pin) | 1 |
+| ESP32 Dev Board Mini | e.g. ESP32-WROOM-32 (38-pin) | 1 |
 | HX711 Load Cell Amplifier | 24-bit ADC for load cells | 1 |
-| Load Cell* | 1–7 kg, half-bridge or full-bridge | 1 |
-| ST7920 LCD | 128×64, SPI mode | 1 |
-| Rotary Encoder | With push-button (KY-040 or similar) | 1 |
-| Passive Buzzer | 3.3 V compatible | 1 |
+| Load Cell* | 5 or 7 kg, full-bridge | 1 |
+| ST7920 LCD*² | 128×64, SPI mode | 1 |
+| Rotary Encoder*² | With push-button (KY-040 or similar) | 1 |
+| Passive Buzzer*² | 3.3 V compatible | 1 |
 | Potentiometer | 10 kΩ linear, for winder speed | 1 |
-| Stepper Motor | NEMA 17, for optional winder | 1 |
-| Stepper Driver | A4988 or DRV8825 | 1 |
-| Filament Runout Sensor | Mechanical switch or optical | 1 |
-| Status LED | 3 mm or 5 mm, any color | 1 |
+<!-- | Stepper Motor*² | NEMA 17, for optional winder | 1 | -->
+<!-- | Stepper Driver | A4988 or DRV8825 | 1 | -->
+<!-- | Filament Runout Sensor*² | Mechanical switch or optical | 1 | -->
 | Resistor 330 Ω | Current limiting for LED | 1 |
 | Power Supply | 5 V / 2 A USB or barrel jack | 1 |
 
@@ -33,6 +32,10 @@ This document covers the hardware components used in this project, their wiring,
 >   * **Side A (Fixed Base):** 15 mm
 >   * **Side B (Load End):** 15 mm
 >   * **Distance between inner holes:** 40 mm
+
+> #### ** *² Parts**
+> All parts marked with *² are taken from an old Ender3 or Ender5.  
+> If you don't have such a printer left for using the parts, you can get replacement parts pretty cheap on AliExpress for example.
 ---
 
 ## Pinout Overview
@@ -152,14 +155,13 @@ Dieses Dokument beschreibt die verwendeten Hardware-Komponenten, ihre Verdrahtun
 | ESP32 Dev Board | z. B. ESP32-WROOM-32 (38-polig) | 1 |
 | HX711 Wägezellenmodul | 24-Bit-ADC für Wägezellen | 1 |
 | Wägezelle* | 1–7 kg, Halb- oder Vollbrücke | 1 |
-| ST7920 LCD | 128×64, SPI-Modus | 1 |
-| Drehgeber | Mit Druckknopf (KY-040 o. ä.) | 1 |
-| Passiver Summer | 3,3 V kompatibel | 1 |
+| ST7920 LCD*² | 128×64, SPI-Modus | 1 |
+| Drehgeber*² | Mit Druckknopf (KY-040 o. ä.) | 1 |
+| Passiver Summer*² | 3,3 V kompatibel | 1 |
 | Potentiometer | 10 kΩ linear, für Wicklergeschwindigkeit | 1 |
-| Schrittmotor | NEMA 17, für optionalen Wickler | 1 |
-| Schrittmotortreiber | A4988 oder DRV8825 | 1 |
-| Filament-Runout-Sensor | Mechanischer Schalter oder optisch | 1 |
-| Status-LED | 3 mm oder 5 mm, beliebige Farbe | 1 |
+<!-- | Schrittmotor*² | NEMA 17, für optionalen Wickler | 1 | -->
+<!-- | Schrittmotortreiber | A4988 oder DRV8825 | 1 | -->
+<!-- | Filament-Runout-Sensor*² | Mechanischer Schalter oder optisch | 1 | -->
 | Widerstand 330 Ω | Strombegrenzung für LED | 1 |
 | Netzteil | 5 V / 2 A USB oder Hohlbuchse | 1 |
 
@@ -171,6 +173,9 @@ Dieses Dokument beschreibt die verwendeten Hardware-Komponenten, ihre Verdrahtun
 >   * **Seite B (Lastaufnahme):** 15 mm
 >   * **Abstand zwischen den inneren Löchern:** 40 mm
 
+> #### ** *² Teile**
+> Alle mit *² gekennzeichneten Komponenten stammen von einem alten Ender3 oder Ender5.
+> Sollte kein alter Drucker zum Ausschlachten verfügbar sein, können diese Teile günstig als Ersatzteile bei z.B. AliExpress bezogen werden.
 ---
 
 ## Pinbelegung (Übersicht)
