@@ -61,17 +61,17 @@ jobs:
       - name: Extract Version from Manifest
         id: get_version
         run: |
-          # Holt die Version aus der manifest.json im Hauptverzeichnis
-          VERSION=$(jq -r '.version' installer/firmware-builds/manifest_scale.json)
+          VERSION=$(jq -r '.version' installer/firmware-builds/manifest-scale.json)
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
           echo "Detected Version from manifest: $VERSION"
-      
+
       - name: Create dummy secrets.yaml (Build)
         run: |
           cat <<EOF > firmware/secrets.yaml
           wifi_ssid: 'dummy'
           wifi_password: 'dummy123'
           spoolman_ip: '127.0.0.1'
+          filaman_ip: '127.0.0.1'
           api_key: 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE='
           ota_password: '123'
           github_url: 'github://${{ github.repository }}/firmware/example_config.yaml'
@@ -83,29 +83,49 @@ jobs:
       - name: Find and Prepare Binary
         shell: bash
         run: |
-          # Sucht automatisch die erzeugte firmware.bin im build-Verzeichnis
-          # Das macht den Workflow robust gegen Namensänderungen in der YAML
           REAL_BIN=$(find firmware/.esphome/build -name "firmware.bin" | head -n 1)
-          
           if [ -z "$REAL_BIN" ]; then
             echo "Error: Compiled firmware.bin not found!"
             exit 1
           fi
-          
-          # Zielname mit der Version aus der manifest_scale.json
           TARGET_NAME="filament-scale.bin"
           cp "$REAL_BIN" "./$TARGET_NAME"
-          
-          # Pfad für den nächsten Schritt speichern
           echo "TARGET_BIN_PATH=./$TARGET_NAME" >> $GITHUB_ENV
           echo "Prepared Binary: $TARGET_NAME"
 
+      # ── NEW: copy .bin into installer/firmware-builds/ ──────
+      - name: Copy binary to installer folder
+        run: |
+          cp ${{ env.TARGET_BIN_PATH }} installer/firmware-builds/filament-scale.bin
+
+      - name: Update manifest version
+        run: |
+          jq --arg v "${{ env.APP_VERSION }}" '.version = $v' \
+            installer/firmware-builds/manifest-scale.json > /tmp/manifest.json
+          mv /tmp/manifest.json installer/firmware-builds/manifest-scale.json
+
+      # ── Commit .bin + updated manifest back to repo ─────────
+      - name: Commit firmware to repository
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add installer/firmware-builds/filament-scale.bin
+          git add installer/firmware-builds/manifest-scale.json
+          git commit -m "ci: update firmware binaries for ${{ github.ref_name }}" || echo "Nothing to commit"
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── GitHub Release (keeps existing behaviour) ────────────
       - name: Create Release and Upload Asset
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.TARGET_BIN_PATH }}
           name: "Release v${{ env.APP_VERSION }}"
-          body: "Automatischer Build basierend auf installer/firmware-builds/manifest_scale.json. Version: ${{ env.APP_VERSION }}"
+          body: |
+            Automatischer Build für Version ${{ env.APP_VERSION }}.
+            
+            **Web Installer:** https://christophcaina.github.io/filament_scale/
           tag_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
