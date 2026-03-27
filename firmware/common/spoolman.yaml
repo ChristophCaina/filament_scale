@@ -47,7 +47,7 @@ script:
               "http://${spoolman_ip}/api/v1/spool/%d",
               id(spoolman_spool_id));
             return std::string(url);
-          headers:
+          request_headers:
             Content-Type: application/json
           body: !lambda |-
             char body[64];
