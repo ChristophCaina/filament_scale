@@ -18,6 +18,7 @@ This document covers the hardware components used in this project, their wiring,
 | ST7920 LCD*² | 128×64, SPI mode | 1 |
 | Rotary Encoder*² | With push-button (KY-040 or similar) | 1 |
 | Passive Buzzer*² | 3.3 V compatible | 1 |
+| PN532 NFC | NFC / RFID Modul | 1 |
 | Power Supply | 5 V / 2 A USB or barrel jack | 1 |
 <!-- | Potentiometer | 10 kΩ linear, for winder speed | 1 | -->
 <!-- | Stepper Motor*² | NEMA 17, for optional winder | 1 | -->
@@ -157,6 +158,7 @@ Dieses Dokument beschreibt die verwendeten Hardware-Komponenten, ihre Verdrahtun
 | ST7920 LCD*² | 128×64, SPI-Modus | 1 |
 | Drehgeber*² | Mit Druckknopf (KY-040 o. ä.) | 1 |
 | Passiver Summer*² | 3,3 V kompatibel | 1 |
+| PN532 NFC | NFC / RFID Modul | 1 |
 | Netzteil | 5 V / 2 A USB oder Hohlbuchse | 1 |
 <!-- | Potentiometer*² | 10 kΩ linear, für Wicklergeschwindigkeit | 1 | -->
 <!-- | Schrittmotor*² | NEMA 17, für optionalen Wickler | 1 | -->
