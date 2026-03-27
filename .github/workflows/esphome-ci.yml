@@ -62,7 +62,7 @@ jobs:
         id: get_version
         run: |
           # Holt die Version aus der manifest.json im Hauptverzeichnis
-          VERSION=$(jq -r '.version' installer/manifest_scale.json)
+          VERSION=$(jq -r '.version' installer/firmware-builds/manifest_scale.json)
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
           echo "Detected Version from manifest: $VERSION"
       
