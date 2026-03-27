@@ -30,13 +30,10 @@ ota:
     password: ${ota_password}
 
 # -- Status LED --
-light:
-  - platform: status_led
-    id: statusled
-    name: "Status LED"
-    pin:
-      number: ${pin_status_led}
-      inverted: false
+status_led:
+  pin:
+    number: ${pin_status_led}
+    inverted: true
 
 # -- Buzzer --
 output:
@@ -84,7 +81,7 @@ text_sensor:
 binary_sensor:
   - platform: gpio
     pin:
-      number: ${winder_connection_pin}
+      number: ${pin_addon_detect}
       mode: INPUT_PULLUP
       inverted: true
     id: addon_connected
@@ -93,8 +90,3 @@ binary_sensor:
 time:
   - platform: homeassistant
     id: esptime
-
-status_led:
-  pin:
-    number: ${status_led_pin}
-    inverted: true
