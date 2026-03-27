@@ -8,7 +8,7 @@
       "chipFamily": "ESP32",
       "parts": [
         { 
-          "path": "https://github.com/christophcaina/filament_scale/releases/latest/download/firmware.bin", 
+          "path": "https://github.com/christophcaina/filament_scale/releases/latest/download/filament-scale.bin", 
           "offset": 0 
         }
       ]
