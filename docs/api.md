@@ -4,7 +4,7 @@
 
 ---
 
-This document describes all external interfaces of the ESPHome Filament Scale: the native ESPHome REST API, Home Assistant integration, and connections to Spoolman and FilaMan.
+This document describes all external interfaces of the ESPHome Filament Scale: the native ESPHome REST API, Home Assistant integration, and the unified sync logic for Spoolman and FilaMan.
 
 ---
 
@@ -20,13 +20,10 @@ ESPHome exposes a built-in REST API that allows reading sensor values and trigge
 GET /sensor/<sensor_id>
 ```
 
-Returns the current state of a sensor as JSON.
-
 | Sensor ID | Description |
 | :--- | :--- |
 | `filament_weight` | Current net weight in grams |
-| `spool_weight` | Raw scale reading |
-| `filament_remaining` | Calculated remaining filament in % |
+| `filament_remaining_pct` | Calculated remaining filament in % |
 
 **Example:**
 ```bash
@@ -36,7 +33,7 @@ curl http://192.168.0.50/sensor/filament_weight
 { "id": "sensor-filament_weight", "value": 217.4, "state": "217.4 g" }
 ```
 
-### Switch / Button Actions
+### Button Actions
 
 ```http
 POST /button/<button_id>/press
@@ -45,12 +42,11 @@ POST /button/<button_id>/press
 | Button ID | Description |
 | :--- | :--- |
 | `tare_scale` | Zero/tare the scale |
-| `sync_spoolman` | Manually trigger Spoolman sync |
-| `sync_filaman` | Manually trigger FilaMan sync |
+| `sync` | Manually trigger sync to active backend |
 
 **Example:**
 ```bash
-curl -X POST http://192.168.0.50/button/tare_scale/press
+curl -X POST http://192.168.0.50/button/sync/press
 ```
 
 ---
@@ -70,9 +66,9 @@ The device integrates natively into Home Assistant via the **ESPHome integration
 | Entity | Type | Description |
 | :--- | :--- | :--- |
 | `sensor.filament_weight` | Sensor | Current net weight (g) |
-| `sensor.filament_remaining` | Sensor | Remaining filament (%) |
+| `sensor.filament_remaining_pct` | Sensor | Remaining filament (%) |
 | `button.tare_scale` | Button | Tare the scale |
-| `button.sync_spoolman` | Button | Trigger Spoolman sync |
+| `button.sync` | Button | Trigger sync to active backend |
 | `switch.winder_enabled` | Switch | Enable/disable winder motor |
 | `number.winder_speed` | Number | Winder speed (0–100%) |
 
@@ -83,7 +79,7 @@ automation:
   - alias: "Notify when filament running low"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.filament_remaining
+        entity_id: sensor.filament_remaining_pct
         below: 15
     action:
       - service: notify.mobile_app
@@ -93,70 +89,96 @@ automation:
 
 ---
 
-## Spoolman API
+## Sync Logic — FilaMan & Spoolman
 
-[Spoolman](https://github.com/Donkie/Spoolman) is a self-hosted filament inventory manager. The scale pushes weight updates to Spoolman automatically after each stable measurement.
+The scale uses a **single unified sync mechanism** (`sync.yaml`) that automatically selects the correct backend at boot. Both FilaMan and Spoolman share the same Spoolman-compatible REST API, so the HTTP call is identical — only the base URL differs.
+
+### How FilaMan and Spoolman relate
+
+FilaMan provides a **Spoolman API Plugin** that exposes a fully Spoolman-compatible REST API under `/spoolman/api/v1/`. External tools can use FilaMan as a drop-in replacement for Spoolman without reconfiguration.
+
+This means: if FilaMan is configured, the scale talks to FilaMan using the Spoolman API. FilaMan then handles synchronisation with Spoolman internally — no duplicate pushes needed.
+
+### Priority Logic
+
+```
+Boot
+ │
+ ├─► filaman_ip configured?
+ │    ├─► Yes → probe http://<filaman_ip>/spoolman/api/v1/health
+ │    │         ├─► HTTP 200 → use FilaMan as backend ✅
+ │    │         └─► Error   → fallback to Spoolman ⚠️
+ │    │
+ │    └─► No → use Spoolman directly
+ │
+ └─► Weight push (PATCH /spool/<id>) → active backend
+```
 
 ### Configuration
 
+Set the IPs in `example_config.yaml`:
+
 ```yaml
-spoolman_ip: "192.168.0.1:7912"
+substitutions:
+  spoolman_ip: "192.168.0.1:7912"   # always set this
+  filaman_ip:  "192.168.0.1:8083"   # leave empty to skip FilaMan
 ```
 
-### How It Works
+To use **Spoolman only**, leave `filaman_ip` empty:
+```yaml
+  filaman_ip: ""
+```
 
-After a stable weight reading, the scale sends an HTTP PATCH request to update the remaining weight of the active spool:
+To use **FilaMan only** (with FilaMan→Spoolman sync handled by FilaMan):
+```yaml
+  filaman_ip: "192.168.0.1:8083"
+  spoolman_ip: ""   # not needed if FilaMan handles Spoolman internally
+```
+
+### The sync call (identical for both backends)
 
 ```http
-PATCH http://<spoolman_ip>/api/v1/spool/<spool_id>
+PATCH http://<backend>/api/v1/spool/<spool_id>
 Content-Type: application/json
 
 { "remaining_weight": 217.4 }
 ```
 
-The active `spool_id` is selected via the on-device menu or synced from Spoolman on boot.
+| Backend | Effective URL |
+| :--- | :--- |
+| FilaMan | `http://<filaman_ip>/spoolman/api/v1/spool/<id>` |
+| Spoolman | `http://<spoolman_ip>/api/v1/spool/<id>` |
+
+### HTTP Response Codes
+
+| Code | Meaning | Device reaction |
+| :--- | :--- | :--- |
+| `200` | Sync successful | ✅ Confirm beep |
+| `404` | Spool ID not found | ❌ Error beep, log warning |
+| Other | Server error | ❌ Error beep, log warning |
 
 ### Manual Sync
 
 ```bash
-curl -X POST http://192.168.0.50/button/sync_spoolman/press
+curl -X POST http://192.168.0.50/button/sync/press
 ```
 
 ---
 
-## FilaMan API
+## NFC / RFID Tag Integration
 
-[FilaMan](https://docu.filaman.app/) is a web-based open-source filament management system with support for OctoPrint, Klipper/Moonraker, and Home Assistant.
+> 🔲 Planned — not yet implemented
 
-### Configuration
+When an NFC tag is scanned, the scale reads the spool ID from the tag and automatically pushes the current weight to the active backend (FilaMan or Spoolman).
 
-```yaml
-filaman_ip: "192.168.0.1:8083"
-```
-
-### How It Works
-
-The scale pushes the current spool weight to FilaMan after each stable measurement for fill-level tracking and printer filament accounting.
-
-```http
-POST http://<filaman_ip>/api/scale
-Content-Type: application/json
-
-{ "weight": 217.4, "spool_id": "abc123" }
-```
-
-> ℹ️ The exact endpoint may vary depending on your FilaMan version. Check the [FilaMan documentation](https://docu.filaman.app/) for the current API reference.
-
-### Home Assistant Add-on
-
-FilaMan can be installed as a Home Assistant Add-on via [ha-filaman-system](https://github.com/netscout2001/ha-filaman-system). Use the internal HA IP and the configured port.
+If no FilaMan is configured and a spool is identified via Spoolman, the Spoolman spool ID can be written back to the NFC tag for future auto-identification.
 
 ---
 ---
 
 # 🔌 API-Dokumentation
 
-Dieses Dokument beschreibt alle externen Schnittstellen der ESPHome Filamentwaage: die native ESPHome REST API, die Home Assistant Integration sowie die Anbindungen an Spoolman und FilaMan.
+Dieses Dokument beschreibt alle externen Schnittstellen der ESPHome Filamentwaage: die native ESPHome REST API, die Home Assistant Integration sowie die einheitliche Sync-Logik für Spoolman und FilaMan.
 
 ---
 
@@ -175,8 +197,7 @@ GET /sensor/<sensor_id>
 | Sensor-ID | Beschreibung |
 | :--- | :--- |
 | `filament_weight` | Aktuelles Nettogewicht in Gramm |
-| `spool_weight` | Rohwert der Waage |
-| `filament_remaining` | Berechnetes Restfilament in % |
+| `filament_remaining_pct` | Berechnetes Restfilament in % |
 
 **Beispiel:**
 ```bash
@@ -186,7 +207,7 @@ curl http://192.168.0.50/sensor/filament_weight
 { "id": "sensor-filament_weight", "value": 217.4, "state": "217.4 g" }
 ```
 
-### Schalter / Button-Aktionen
+### Button-Aktionen
 
 ```http
 POST /button/<button_id>/press
@@ -195,12 +216,11 @@ POST /button/<button_id>/press
 | Button-ID | Beschreibung |
 | :--- | :--- |
 | `tare_scale` | Waage tarieren (nullen) |
-| `sync_spoolman` | Spoolman-Sync manuell auslösen |
-| `sync_filaman` | FilaMan-Sync manuell auslösen |
+| `sync` | Sync zum aktiven Backend manuell auslösen |
 
 **Beispiel:**
 ```bash
-curl -X POST http://192.168.0.50/button/tare_scale/press
+curl -X POST http://192.168.0.50/button/sync/press
 ```
 
 ---
@@ -220,9 +240,9 @@ Das Gerät integriert sich nativ über die **ESPHome-Integration** in Home Assis
 | Entität | Typ | Beschreibung |
 | :--- | :--- | :--- |
 | `sensor.filament_weight` | Sensor | Aktuelles Nettogewicht (g) |
-| `sensor.filament_remaining` | Sensor | Restfilament (%) |
+| `sensor.filament_remaining_pct` | Sensor | Restfilament (%) |
 | `button.tare_scale` | Button | Waage tarieren |
-| `button.sync_spoolman` | Button | Spoolman-Sync auslösen |
+| `button.sync` | Button | Sync zum aktiven Backend auslösen |
 | `switch.winder_enabled` | Switch | Wickler aktivieren/deaktivieren |
 | `number.winder_speed` | Number | Wicklergeschwindigkeit (0–100 %) |
 
@@ -233,7 +253,7 @@ automation:
   - alias: "Benachrichtigung bei wenig Filament"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.filament_remaining
+        entity_id: sensor.filament_remaining_pct
         below: 15
     action:
       - service: notify.mobile_app
@@ -243,60 +263,84 @@ automation:
 
 ---
 
-## Spoolman API
+## Sync-Logik — FilaMan & Spoolman
 
-[Spoolman](https://github.com/Donkie/Spoolman) ist ein selbst gehosteter Filament-Inventarmanager. Die Waage überträgt Gewichtsaktualisierungen automatisch nach jeder stabilen Messung.
+Die Waage verwendet einen **einheitlichen Sync-Mechanismus** (`sync.yaml`), der beim Start automatisch das richtige Backend erkennt. Sowohl FilaMan als auch Spoolman verwenden dieselbe Spoolman-kompatible REST API — der HTTP-Aufruf ist identisch, nur die Basis-URL unterscheidet sich.
+
+### Wie FilaMan und Spoolman zusammenhängen
+
+FilaMan bietet ein **Spoolman API Plugin**, das eine vollständig Spoolman-kompatible REST API unter `/spoolman/api/v1/` bereitstellt. Externe Tools können FilaMan damit als direkten Ersatz für Spoolman verwenden. Ist FilaMan konfiguriert, spricht die Waage über die Spoolman-API mit FilaMan — FilaMan übernimmt die interne Synchronisierung mit Spoolman. Kein doppelter Push nötig.
+
+### Priorisierungslogik
+
+```
+Start
+ │
+ ├─► filaman_ip konfiguriert?
+ │    ├─► Ja → http://<filaman_ip>/spoolman/api/v1/health prüfen
+ │    │         ├─► HTTP 200 → FilaMan als Backend verwenden ✅
+ │    │         └─► Fehler   → Fallback auf Spoolman ⚠️
+ │    │
+ │    └─► Nein → Spoolman direkt verwenden
+ │
+ └─► Gewicht-Push (PATCH /spool/<id>) → aktives Backend
+```
 
 ### Konfiguration
 
+IPs in der `example_config.yaml` eintragen:
+
 ```yaml
-spoolman_ip: "192.168.0.1:7912"
+substitutions:
+  spoolman_ip: "192.168.0.1:7912"   # immer angeben
+  filaman_ip:  "192.168.0.1:8083"   # leer lassen um FilaMan zu überspringen
 ```
 
-### Funktionsweise
+**Nur Spoolman** — `filaman_ip` leer lassen:
+```yaml
+  filaman_ip: ""
+```
 
-Nach einem stabilen Messwert sendet die Waage einen HTTP-PATCH-Request an die Spoolman API:
+**Nur FilaMan** (FilaMan → Spoolman Sync läuft intern über FilaMan):
+```yaml
+  filaman_ip: "192.168.0.1:8083"
+  spoolman_ip: ""
+```
+
+### Der Sync-Aufruf (identisch für beide Backends)
 
 ```http
-PATCH http://<spoolman_ip>/api/v1/spool/<spool_id>
+PATCH http://<backend>/api/v1/spool/<spool_id>
 Content-Type: application/json
 
 { "remaining_weight": 217.4 }
 ```
 
-Die aktive `spool_id` wird über das Gerätemenü ausgewählt oder beim Start von Spoolman synchronisiert.
+| Backend | Effektive URL |
+| :--- | :--- |
+| FilaMan | `http://<filaman_ip>/spoolman/api/v1/spool/<id>` |
+| Spoolman | `http://<spoolman_ip>/api/v1/spool/<id>` |
+
+### HTTP-Antwortcodes
+
+| Code | Bedeutung | Reaktion des Geräts |
+| :--- | :--- | :--- |
+| `200` | Sync erfolgreich | ✅ Bestätigungs-Beep |
+| `404` | Spulen-ID nicht gefunden | ❌ Fehler-Beep, Log-Warnung |
+| Sonstige | Serverfehler | ❌ Fehler-Beep, Log-Warnung |
 
 ### Manueller Sync
 
 ```bash
-curl -X POST http://192.168.0.50/button/sync_spoolman/press
+curl -X POST http://192.168.0.50/button/sync/press
 ```
 
 ---
 
-## FilaMan API
+## NFC / RFID Tag Integration
 
-[FilaMan](https://docu.filaman.app/) ist ein webbasiertes Open-Source-System zur Filamentverwaltung mit Unterstützung für OctoPrint, Klipper/Moonraker und Home Assistant.
+> 🔲 Geplant — noch nicht implementiert
 
-### Konfiguration
+Wird ein NFC-Tag gescannt, liest die Waage die Spulen-ID vom Tag und überträgt das aktuelle Gewicht automatisch an das aktive Backend (FilaMan oder Spoolman).
 
-```yaml
-filaman_ip: "192.168.0.1:8083"
-```
-
-### Funktionsweise
-
-Die Waage überträgt das aktuelle Spulengewicht nach jeder stabilen Messung an FilaMan.
-
-```http
-POST http://<filaman_ip>/api/scale
-Content-Type: application/json
-
-{ "weight": 217.4, "spool_id": "abc123" }
-```
-
-> ℹ️ Der genaue Endpunkt kann je nach FilaMan-Version abweichen. Aktuelle Infos in der [FilaMan-Dokumentation](https://docu.filaman.app/).
-
-### Home Assistant Add-on
-
-FilaMan kann als Home Assistant Add-on über [ha-filaman-system](https://github.com/netscout2001/ha-filaman-system) installiert werden. Interne HA-IP und konfigurierten Port verwenden.
+Ist kein FilaMan konfiguriert und eine Spule über Spoolman identifiziert, kann die Spoolman-Spulen-ID zur künftigen automatischen Erkennung auf den NFC-Tag zurückgeschrieben werden.
