@@ -7,9 +7,9 @@
     {
       "chipFamily": "ESP32",
       "parts": [
-        { 
-          "path": "filament-scale.bin", 
-          "offset": 0 
+        {
+          "path": "filament-scale.bin",
+          "offset": 0
         }
       ]
     }
