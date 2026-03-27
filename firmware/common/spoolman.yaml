@@ -18,6 +18,6 @@ button:
     id: btn_sync_spoolman
     name: "${device_name} Sync Spoolman"
     icon: mdi:cloud-upload
-    on_press:
-      then:
-        - script.execute: script_push_spoolman
+#    on_press:
+#      then:
+#        - script.execute: script_push_spoolman
