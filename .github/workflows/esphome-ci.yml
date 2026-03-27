@@ -105,7 +105,7 @@ jobs:
         with:
           files: ${{ env.TARGET_BIN_PATH }}
           name: "Release v${{ env.APP_VERSION }}"
-          body: "Automatischer Build basierend auf installer/manifest_scale.json. Version: ${{ env.APP_VERSION }}"
+          body: "Automatischer Build basierend auf installer/firmware-builds/manifest_scale.json. Version: ${{ env.APP_VERSION }}"
           tag_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
