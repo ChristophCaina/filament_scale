@@ -31,7 +31,8 @@ ota:
 # -- Status LED --
 light:
   - platform: status_led
-    id: status_led
+    id: statusled
+    name: "Status LED"
     pin:
       number: ${pin_status_led}
       inverted: false
