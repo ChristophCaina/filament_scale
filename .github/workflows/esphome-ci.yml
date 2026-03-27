@@ -47,6 +47,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -112,6 +115,8 @@ jobs:
           git add installer/firmware-builds/filament-scale.bin
           git add installer/firmware-builds/manifest-scale.json
           git commit -m "ci: update firmware binaries for ${{ github.ref_name }}" || echo "Nothing to commit"
+          # Pull with rebase to avoid race condition with concurrent workflows
+          git pull --rebase origin main
           git push origin HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
