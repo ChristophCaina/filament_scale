@@ -1,0 +1,32 @@
+name: ESPHome CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create dummy secrets.yaml
+        # Wir erstellen die Datei im Hauptverzeichnis (Root)
+        run: |
+          echo "wifi_ssid: 'dummy_ssid'" > secrets.yaml
+          echo "wifi_password: 'dummy_password'" >> secrets.yaml
+          echo "spoolman_ip: '127.0.0.1'" >> secrets.yaml
+          echo "filaman_ip: '127.0.0.1'" >> secrets.yaml
+          echo "mqtt_broker: '127.0.0.1'" >> secrets.yaml
+          echo "api_encryption_key: 'MDEyMzQ1Njc4OTAxMjM0NQ=='" >> secrets.yaml
+          echo "github_url: 'github://christophcaina/filament_scale/firmware/example_config.yaml'" >> secrets.yaml
+
+      - name: Validate ESPHome Config
+        uses: esphome/build-action@v2
+        with:
+          version: latest
+          # Pfad zu deiner Haupt-Konfigurationsdatei
+          yaml_file: firmware/test-all.yaml

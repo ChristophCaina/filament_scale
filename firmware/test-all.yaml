@@ -1,0 +1,13 @@
+dashboard_import:
+  package_import_url: !secret github_url
+
+packages:
+  base:     !include common/base.yaml
+  scale:    !include common/scale.yaml
+  display:  !include common/display.yaml
+  controls: !include common/controls.yaml
+  spoolman: !include common/spoolman.yaml
+  filaman:  !include common/filaman.yaml
+  nfc:      !include common/nfc.yaml
+  stepper:  !include common/stepper.yaml
+  winder:   !include common/winder.yaml 
