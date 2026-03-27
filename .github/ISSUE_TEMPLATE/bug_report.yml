@@ -1,0 +1,40 @@
+name: "🐛 Bug Report / Fehler melden"
+description: Report an error or bug (English / Deutsch)
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### English 🇺🇸
+        Thank you for reporting a bug! Please fill out the form below.
+        ### Deutsch 🇩🇪
+        Vielen Dank für die Fehlermeldung! Bitte fülle das Formular so gut wie möglich aus.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Affected Area / Betroffener Bereich"
+      description: "Where did the issue occur? / Wo tritt das Problem auf?"
+      options:
+        - "Firmware (ESP32 / ESPHome)"
+        - "Hardware (3D-Print / Wiring / Mechanik)"
+        - "Web-Interface (Installer / PWA)"
+        - "Documentation (Docs / README)"
+        - "API (Spoolman / FilaMan)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description / Beschreibung"
+      description: "What happened? / Was genau funktioniert nicht?"
+      placeholder: "Describe the bug here... / Beschreibe den Fehler hier..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce / Schritte zur Reproduktion"
+      placeholder: "1. Connected USB...\n2. Clicked Install..."

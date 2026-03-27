@@ -14,3 +14,15 @@
 "area: infrastructure":
   - changed-files:
     - any-glob-to-any-file: ['.github/workflows/**']
+
+# Ergänzung für Standard-Labels basierend auf PR-Titel oder Branch-Name
+"bug":
+  - title: ['.*fix.*', '.*bug.*', '.*behebung.*', '.*fehler.*']
+  - head-branch: ['^fix/.*', '.*patch.*']
+
+"enhancement":
+  - title: ['.*feat.*', '.*neu.*', '.*add.*', '.*verbesserung.*']
+  - head-branch: ['^feature/.*', '^feat/.*']
+
+"question":
+  - title: ['.*\?.*', '.*frage.*', '.*help.*', '.*hilfe.*']
