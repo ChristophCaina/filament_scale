@@ -73,6 +73,7 @@ jobs:
           wifi_password: 'dummy'
           spoolman_ip: '127.0.0.1'
           api_key: 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE='
+          ota_password: '123'
           github_url: 'github://${{ github.repository }}/firmware/example_config.yaml'
           EOF
 

@@ -1,6 +1,6 @@
 {
   "name": "ESPHome Filament Scale",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "home_assistant_domain": "esphome",
   "new_install_prompt_erase": true,
   "builds": [
