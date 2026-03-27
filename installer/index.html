@@ -144,6 +144,19 @@
       font-size: .95rem;
       font-weight: 700;
       color: #fff;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+    .fw-version-badge {
+      font-size: .7rem;
+      font-weight: 400;
+      color: var(--accent);
+      border: 1px solid rgba(245,166,35,.4);
+      padding: .1rem .45rem;
+      border-radius: 2px;
+      letter-spacing: .05em;
     }
     .firmware-desc {
       font-size: .85rem;
@@ -301,7 +314,10 @@
   <div class="firmware-card">
     <div class="firmware-card-header">
       <div class="firmware-icon">⚖️</div>
-      <div class="firmware-title">Filament Scale & Winder</div>
+      <div class="firmware-title">
+        Filament Scale &amp; Winder
+        <span class="fw-version-badge" id="fw-version">…</span>
+      </div>
     </div>
     <p class="firmware-desc">
       Precise filament weight measurement with display, menu navigation, Spoolman &amp; FilaMan integration.
@@ -380,6 +396,16 @@
   if (!navigator.serial) {
     document.getElementById('browserWarning').style.display = 'block';
   }
+
+  // Load version from manifest
+  fetch('firmware-builds/manifest-scale.json')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('fw-version').textContent = 'v' + data.version;
+    })
+    .catch(() => {
+      document.getElementById('fw-version').textContent = '';
+    });
 </script>
 
 </body>
