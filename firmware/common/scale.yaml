@@ -1,0 +1,84 @@
+# ============================================================
+# scale.yaml
+# HX711 load cell: raw reading, calibration, tare, filters
+# ============================================================
+
+sensor:
+  # -- Raw HX711 value (internal, used for calibration) --
+  - platform: hx711
+    id: scale_raw
+    name: "${device_name} Scale Raw"
+    internal: true
+    dout_pin: ${pin_scale_dt}
+    clk_pin: ${pin_scale_sck}
+    gain: 128
+    update_interval: 200ms
+
+  # -- Calibrated weight in grams --
+  - platform: template
+    id: scale_weight
+    name: "${device_name} Weight"
+    unit_of_measurement: "g"
+    accuracy_decimals: 1
+    icon: mdi:scale-balance
+    update_interval: 500ms
+    lambda: |-
+      float raw = id(scale_raw).state;
+      float tare = id(scale_tare_offset);
+      float factor = ${scale_calibration_factor};
+      float weight = (raw - tare) / factor;
+      // Clamp small negative values to zero (noise around zero point)
+      if (weight < 0.5f && weight > -5.0f) weight = 0.0f;
+      return weight;
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+      - delta: 0.5
+
+  # -- Filament remaining in % (based on known spool weight) --
+  - platform: template
+    id: filament_remaining_pct
+    name: "${device_name} Filament Remaining"
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    icon: mdi:percent
+    update_interval: 5s
+    lambda: |-
+      float net = id(scale_weight).state;
+      float spool = id(spool_empty_weight);
+      float total = id(spool_total_filament);
+      if (total <= 0) return NAN;
+      float remaining = ((net - spool) / total) * 100.0f;
+      return clamp(remaining, 0.0f, 100.0f);
+
+# -- Tare offset stored in global --
+globals:
+  - id: scale_tare_offset
+    type: float
+    restore_value: true
+    initial_value: "0.0"
+
+  - id: spool_empty_weight
+    type: float
+    restore_value: true
+    initial_value: "200.0"   # typical empty spool ~200g, adjust per spool
+
+  - id: spool_total_filament
+    type: float
+    restore_value: true
+    initial_value: "1000.0"  # typical 1kg spool
+
+# -- Tare button --
+button:
+  - platform: template
+    id: btn_tare
+    name: "${device_name} Tare Scale"
+    icon: mdi:scale-balance
+    on_press:
+      then:
+        - globals.set:
+            id: scale_tare_offset
+            value: !lambda "return id(scale_raw).state;"
+        - script.execute: beep_confirm
+        - logger.log: "Scale tared."

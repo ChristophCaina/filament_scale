@@ -1,0 +1,105 @@
+# ============================================================
+# display.yaml
+# ST7920 128x64 SPI display with menu rendering
+# ============================================================
+
+spi:
+  clk_pin: ${pin_display_clk}
+  mosi_pin: ${pin_display_mosi}
+
+font:
+  - file: "gfonts://Roboto"
+    id: font_small
+    size: 10
+  - file: "gfonts://Roboto Medium"
+    id: font_medium
+    size: 14
+
+globals:
+  - id: menu_page
+    type: int
+    restore_value: false
+    initial_value: "0"
+    # Pages:
+    # 0 = Main (weight + filament %)
+    # 1 = Tare
+    # 2 = Spool settings
+    # 3 = Spoolman sync
+    # 4 = Winder (only shown when add-on detected)
+
+display:
+  - platform: st7920
+    id: lcd
+    cs_pin: ${pin_display_cs}
+    width: 128
+    height: 64
+    update_interval: 250ms
+    lambda: |-
+      int page = id(menu_page);
+
+      // ── Page 0: Main view ──────────────────────────────────
+      if (page == 0) {
+        it.print(0, 0, id(font_medium), "⚖ Filament Scale");
+        it.line(0, 14, 128, 14);
+
+        // Weight
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%.1f g", id(scale_weight).state);
+        it.print(0, 18, id(font_medium), buf);
+
+        // Remaining %
+        snprintf(buf, sizeof(buf), "%.0f%%", id(filament_remaining_pct).state);
+        it.print(0, 34, id(font_small), "Remaining:");
+        it.print(70, 34, id(font_small), buf);
+
+        // WiFi indicator
+        if (id(wifi_component).is_connected()) {
+          it.print(110, 0, id(font_small), "W");
+        }
+
+        // Menu hint
+        it.print(0, 54, id(font_small), "[ turn: menu ]");
+      }
+
+      // ── Page 1: Tare ───────────────────────────────────────
+      else if (page == 1) {
+        it.print(0, 0, id(font_medium), "1. Tare Scale");
+        it.line(0, 14, 128, 14);
+        it.print(0, 20, id(font_small), "Remove all weight,");
+        it.print(0, 32, id(font_small), "then press button.");
+        it.print(0, 54, id(font_small), "[ press: tare ]");
+      }
+
+      // ── Page 2: Spool settings ─────────────────────────────
+      else if (page == 2) {
+        it.print(0, 0, id(font_medium), "2. Spool Setup");
+        it.line(0, 14, 128, 14);
+        char buf[32];
+        snprintf(buf, sizeof(buf), "Empty:  %.0f g", id(spool_empty_weight));
+        it.print(0, 20, id(font_small), buf);
+        snprintf(buf, sizeof(buf), "Total: %.0f g", id(spool_total_filament));
+        it.print(0, 32, id(font_small), buf);
+        it.print(0, 54, id(font_small), "[ press: edit ]");
+      }
+
+      // ── Page 3: Spoolman sync ──────────────────────────────
+      else if (page == 3) {
+        it.print(0, 0, id(font_medium), "3. Spoolman");
+        it.line(0, 14, 128, 14);
+        it.print(0, 20, id(font_small), "Push weight update");
+        it.print(0, 32, id(font_small), "to Spoolman server.");
+        it.print(0, 54, id(font_small), "[ press: sync ]");
+      }
+
+      // ── Page 4: Winder (add-on only) ──────────────────────
+      else if (page == 4) {
+        it.print(0, 0, id(font_medium), "4. Winder");
+        it.line(0, 14, 128, 14);
+        char buf[32];
+        snprintf(buf, sizeof(buf), "Speed: %.0f%%",
+          id(winder_speed_pct).state);
+        it.print(0, 20, id(font_small), buf);
+        it.print(0, 32, id(font_small),
+          id(winder_running) ? "Status: RUNNING" : "Status: STOPPED");
+        it.print(0, 54, id(font_small), "[ press: start/stop ]");
+      }

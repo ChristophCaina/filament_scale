@@ -1,0 +1,41 @@
+# ============================================================
+# nfc.yaml
+# NFC/RFID spool tag reading (PN532 via I2C)
+# ============================================================
+#
+# Reads NFC tags on spools to automatically identify:
+#   - Spool ID (for Spoolman / FilaMan)
+#   - Empty spool weight
+#   - Total filament weight
+#   - Material & color (optional)
+#
+# Hardware: PN532 NFC module via I2C
+#   SDA → ${pin_i2c_sda}
+#   SCL → ${pin_i2c_scl}
+# ============================================================
+
+i2c:
+  sda: ${pin_i2c_sda}
+  scl: ${pin_i2c_scl}
+  scan: false
+
+pn532_i2c:
+  id: nfc_reader
+  on_tag:
+    then:
+      - lambda: |-
+          ESP_LOGI("nfc", "Tag detected: %s", x.c_str());
+          // TODO: parse tag payload
+          // Expected format (NDEF text record):
+          //   spool_id=42;empty=200;total=1000
+          //
+          // Example parsing:
+          // if (x.find("spool_id=") != std::string::npos) {
+          //   int id = atoi(x.substr(x.find("spool_id=") + 9).c_str());
+          //   id(spoolman_spool_id) = id;
+          // }
+      - script.execute: beep_confirm
+
+  on_tag_removed:
+    then:
+      - logger.log: "NFC tag removed."

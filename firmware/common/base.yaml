@@ -1,0 +1,65 @@
+# ============================================================
+# base.yaml
+# Base configuration: WiFi, API, OTA, Logger, LED, Buzzer
+# ============================================================
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: ${wifi_ssid}
+  password: ${wifi_password}
+  ap:
+    ssid: "${device_name} Fallback"
+    password: ${ap_password}
+
+captive_portal:
+
+logger:
+  level: INFO
+
+api:
+  encryption:
+    key: ${api_key}
+
+ota:
+  - platform: esphome
+    password: ${ota_password}
+
+# -- Status LED --
+light:
+  - platform: status_led
+    id: status_led
+    pin:
+      number: ${pin_status_led}
+      inverted: false
+
+# -- Buzzer --
+output:
+  - platform: ledc
+    id: buzzer_output
+    pin: ${pin_buzzer}
+    frequency: 2000Hz
+
+rtttl:
+  output: buzzer_output
+  id: buzzer
+
+# Convenience scripts for common beep patterns
+script:
+  - id: beep_short
+    then:
+      - rtttl.play:
+          rtttl: "beep:d=4,o=5,b=200:16e6"
+
+  - id: beep_confirm
+    then:
+      - rtttl.play:
+          rtttl: "confirm:d=4,o=5,b=200:16e6,16e6"
+
+  - id: beep_error
+    then:
+      - rtttl.play:
+          rtttl: "error:d=4,o=5,b=100:16c5,16b4"
