@@ -39,7 +39,8 @@ script:
             id(spoolman_spool_id));
           ESP_LOGI("spoolman", "Pushing %.1fg to spool #%d",
             id(scale_weight).state, id(spoolman_spool_id));
-      - http_request.patch:
+      - http_request.send:
+          method: PATCH
           url: !lambda |-
             char url[128];
             snprintf(url, sizeof(url),
