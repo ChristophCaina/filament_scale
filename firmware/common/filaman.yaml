@@ -24,7 +24,7 @@ script:
     then:
       - http_request.post:
           url: "http://${filaman_ip}/api/scale"
-          headers:
+          request_headers:
             Content-Type: application/json
           body: !lambda |-
             char body[128];

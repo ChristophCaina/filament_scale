@@ -1,0 +1,44 @@
+name: ESPHome CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+            python-version: '3.11'
+
+      - name: Install ESPHome
+        run: pip install esphome
+
+      - name: Create dummy secrets.yaml
+        run: |
+          cat <<EOF > firmware/secrets.yaml
+          wifi_ssid: 'dummy_ssid'
+          wifi_password: 'dummy_password'
+          spoolman_ip: '127.0.0.1'
+          filaman_ip: '127.0.0.1'
+          api_key: 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE='
+          ota_password: '123'
+          github_url: 'github://christophcaina/filament_scale/firmware/example_config.yaml'
+          EOF
+
+      - name: Validate ESPHome Config
+        run: esphome config firmware/test-all.yaml
+      # uses: esphome/build-action@v2
+      # with:
+      #   version: latest
+      #   yaml_file: firmware/test-all.yaml
+          # Wir deaktivieren den Cache explizit, falls die interne 
+          # Action eine veraltete Cache-Version nutzt:
+      #   cache: false

@@ -1,8 +1,7 @@
-# ============================================================
-# example_config.yaml
-# Copy this file into your ESPHome dashboard.
-# Only edit the substitutions below — do not add logic here.
-# ============================================================
+# this file is only for unit-tests
+
+dashboard_import:
+  package_import_url: !secret github_url
 
 substitutions:
   # -- Device identity --
@@ -12,7 +11,6 @@ substitutions:
   esp_project: "filamenspoolscale"
   esp_project_name: "Filament Spool Scale"
   esp_project_version: '2026.03.001'
-
   # -- WiFi --
   wifi_ssid: !secret wifi_ssid
   wifi_password: !secret wifi_password
@@ -57,13 +55,12 @@ esphome:
     version: ${esp_project_version}
 
 packages:
-  base:         !include common/base.yaml
-  scale:        !include common/scale.yaml
-  display:      !include common/display.yaml
-  controls:     !include common/controls.yaml
-  spoolman:     !include common/spoolman.yaml
-  filaman:      !include common/filaman.yaml
-  nfc:          !include common/nfc.yaml
-  # optional packages -- remove leading # if you use the hardware
-#  stepper:      !include common/stepper.yaml
-#  winder:       !include common/winder.yaml  
+  base:     !include common/base.yaml
+  scale:    !include common/scale.yaml
+  display:  !include common/display.yaml
+  controls: !include common/controls.yaml
+  spoolman: !include common/spoolman.yaml
+  filaman:  !include common/filaman.yaml
+  nfc:      !include common/nfc.yaml
+  stepper:  !include common/stepper.yaml
+  winder:   !include common/winder.yaml 

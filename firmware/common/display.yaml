@@ -8,12 +8,18 @@ spi:
   mosi_pin: ${pin_display_mosi}
 
 font:
-  - file: "gfonts://Roboto"
+  - file: "gfonts://Silkscreen"
     id: font_small
-    size: 10
-  - file: "gfonts://Roboto Medium"
+    size: 8
+  - file: "gfonts://Silkscreen"
     id: font_medium
-    size: 14
+    size: 10
+  - file: "gfonts://Silkscreen"
+    id: font_large
+    size: 15
+  - file: "gfonts://Silkscreen"
+    id: spool_id_large
+    size: 20
 
 globals:
   - id: menu_page
