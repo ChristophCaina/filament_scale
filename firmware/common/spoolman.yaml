@@ -1,0 +1,66 @@
+# ============================================================
+# spoolman.yaml
+# Spoolman HTTP integration: push weight after stable reading
+# ============================================================
+
+globals:
+  - id: spoolman_spool_id
+    type: int
+    restore_value: true
+    initial_value: "1"   # Set via menu or HA
+
+http_request:
+  useragent: "ESPHome Filament Scale"
+  timeout: 5s
+
+button:
+  - platform: template
+    id: btn_sync_spoolman
+    name: "${device_name} Sync Spoolman"
+    icon: mdi:cloud-upload
+    on_press:
+      then:
+        - script.execute: script_push_spoolman
+
+script:
+  - id: script_push_spoolman
+    mode: single
+    then:
+      - lambda: |-
+          // Build JSON body
+          char body[64];
+          snprintf(body, sizeof(body),
+            "{\"remaining_weight\": %.1f}",
+            id(scale_weight).state);
+          // Build URL
+          char url[128];
+          snprintf(url, sizeof(url),
+            "http://${spoolman_ip}/api/v1/spool/%d",
+            id(spoolman_spool_id));
+          ESP_LOGI("spoolman", "Pushing %.1fg to spool #%d",
+            id(scale_weight).state, id(spoolman_spool_id));
+      - http_request.patch:
+          url: !lambda |-
+            char url[128];
+            snprintf(url, sizeof(url),
+              "http://${spoolman_ip}/api/v1/spool/%d",
+              id(spoolman_spool_id));
+            return std::string(url);
+          headers:
+            Content-Type: application/json
+          body: !lambda |-
+            char body[64];
+            snprintf(body, sizeof(body),
+              "{\"remaining_weight\": %.1f}",
+              id(scale_weight).state);
+            return std::string(body);
+          on_response:
+            then:
+              - lambda: |-
+                  if (status_code == 200) {
+                    ESP_LOGI("spoolman", "Sync OK");
+                    id(beep_confirm).execute();
+                  } else {
+                    ESP_LOGW("spoolman", "Sync failed: %d", status_code);
+                    id(beep_error).execute();
+                  }

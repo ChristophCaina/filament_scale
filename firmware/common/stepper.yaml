@@ -1,0 +1,78 @@
+# ============================================================
+# stepper.yaml
+# Stepper motor (A4988/DRV8825) + potentiometer speed control
+# ============================================================
+
+stepper:
+  - platform: a4988
+    id: winder_stepper
+    step_pin: ${pin_stepper_step}
+    dir_pin: ${pin_stepper_dir}
+    max_speed: 500 steps/s
+    acceleration: inf
+    deceleration: inf
+
+globals:
+  - id: winder_running
+    type: bool
+    restore_value: false
+    initial_value: "false"
+
+sensor:
+  # -- Potentiometer → speed % --------------------------------
+  - platform: adc
+    id: poti_raw
+    pin: ${pin_speed_poti}
+    name: "${device_name} Winder Speed Raw"
+    internal: true
+    attenuation: 11db
+    update_interval: 200ms
+    filters:
+      - multiply: 100.0    # 0–3.3V → 0–100%
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+
+  - platform: template
+    id: winder_speed_pct
+    name: "${device_name} Winder Speed"
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    icon: mdi:speedometer
+    update_interval: 200ms
+    lambda: |-
+      float v = id(poti_raw).state;
+      return clamp(v, 0.0f, 100.0f);
+    on_value:
+      then:
+        - lambda: |-
+            if (id(winder_running)) {
+              // Map 0–100% → 50–500 steps/s
+              float speed = 50.0f + (x / 100.0f) * 450.0f;
+              id(winder_stepper).set_max_speed(speed);
+              // Keep stepper running continuously
+              id(winder_stepper).set_target(id(winder_stepper).current_position + 10000);
+            }
+
+button:
+  - platform: template
+    id: btn_winder_toggle
+    name: "${device_name} Winder Toggle"
+    icon: mdi:rotate-3d-variant
+    on_press:
+      then:
+        - lambda: |-
+            id(winder_running) = !id(winder_running);
+        - if:
+            condition:
+              lambda: "return id(winder_running);"
+            then:
+              - stepper.set_target:
+                  id: winder_stepper
+                  target: !lambda "return id(winder_stepper).current_position + 100000;"
+              - script.execute: beep_confirm
+            else:
+              - stepper.set_target:
+                  id: winder_stepper
+                  target: !lambda "return id(winder_stepper).current_position;"
+              - script.execute: beep_short

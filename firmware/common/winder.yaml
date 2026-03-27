@@ -1,0 +1,46 @@
+# ============================================================
+# winder_addon.yaml
+# Winder add-on detection via GPIO (pulled high, GND = present)
+# ============================================================
+
+globals:
+  - id: winder_addon_detected
+    type: bool
+    restore_value: false
+    initial_value: "false"
+
+binary_sensor:
+  - platform: gpio
+    id: winder_addon_pin
+    name: "${device_name} Winder Add-on"
+    pin:
+      number: ${pin_addon_detect}
+      mode:
+        input: true
+        pullup: true
+      inverted: true   # LOW = add-on connected
+    on_press:
+      then:
+        - globals.set:
+            id: winder_addon_detected
+            value: "true"
+        - logger.log: "Winder add-on detected."
+        - script.execute: beep_confirm
+    on_release:
+      then:
+        - globals.set:
+            id: winder_addon_detected
+            value: "false"
+        # Stop winder if running when add-on is disconnected
+        - if:
+            condition:
+              lambda: "return id(winder_running);"
+            then:
+              - globals.set:
+                  id: winder_running
+                  value: "false"
+              - stepper.set_target:
+                  id: winder_stepper
+                  target: !lambda "return id(winder_stepper).current_position;"
+              - script.execute: beep_error
+        - logger.log: "Winder add-on removed."
