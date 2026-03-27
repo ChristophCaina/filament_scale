@@ -45,7 +45,7 @@ display:
 
       // ── Page 0: Main view ──────────────────────────────────
       if (page == 0) {
-        it.print(0, 0, id(font_medium), "⚖ Filament Scale");
+        it.print(0, 0, id(font_medium), "Filament Scale");
         it.line(0, 14, 128, 14);
 
         // Weight
