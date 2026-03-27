@@ -4,7 +4,9 @@
 
 ---
 
-This project is an intelligent filament scale based on an ESP32. It offers precise weight measurement for 3D printing spools, an integrated spool database, and control for an optional winder add-on.
+This project is an intelligent filament scale based on an ESP32. It offers precise weight measurement for 3D printing spools, an integrated spool database, and control for an optional winder add-on.  
+The Primary goal of this project was also, to re-use some Hardware of an old Ender3 Printer, which is no longer in use.  
+If you don't have the required parts remaining, consider to buy some cheap replacement parts online.
 
 ## ✨ Features
 
@@ -84,7 +86,9 @@ FilaMan can also be run as a **Home Assistant Add-on** — see [ha-filaman-syste
 
 # ⚖️ ESPHome Filament-Waage & -Wickler
 
-Dieses Projekt ist eine intelligente Filamentwaage auf Basis eines ESP32. Es bietet präzise Gewichtsmessung für 3D-Druck-Spulen, eine integrierte Spulendatenbank und die Steuerung eines optionalen Wickler-Add-ons.
+Dieses Projekt ist eine intelligente Filamentwaage auf Basis eines ESP32. Es bietet präzise Gewichtsmessung für 3D-Druck-Spulen, eine integrierte Spulendatenbank und die Steuerung eines optionalen Wickler-Add-ons. 
+Ein Ziel für dieses Projekt war zudem die Verwertung einiger Bauteile eines alten, ausgedienten Ender3 Druckers.  
+Solltest du nicht über die Notwendige Hardware verfügen, kannst du diese relativ günstig Online als Ersatzteile beziehen.
 
 ## ✨ Features
 
