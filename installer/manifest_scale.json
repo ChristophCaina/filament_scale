@@ -1,15 +1,15 @@
 {
-  "name": "ESPHome Filament Scale",
-  "version": "1.0.0",
+  "name": "Filament Scale",
+  "version": "0.0.1",
   "home_assistant_domain": "esphome",
   "new_install_prompt_erase": true,
   "builds": [
     {
       "chipFamily": "ESP32",
       "parts": [
-        {
-          "path": "firmware.bin",
-          "offset": 0
+        { 
+          "path": "https://github.com/christophcaina/filament_scale/releases/latest/download/firmware.bin", 
+          "offset": 0 
         }
       ]
     }
