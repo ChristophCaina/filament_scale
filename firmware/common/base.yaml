@@ -78,15 +78,6 @@ text_sensor:
       name: "SSID"
       id: wifi_info_ssid
 
-binary_sensor:
-  - platform: gpio
-    pin:
-      number: ${pin_addon_detect}
-      mode: INPUT_PULLUP
-      inverted: true
-    id: addon_connected
-    name: "Winder Addon Status"
-
 time:
   - platform: homeassistant
     id: esptime
