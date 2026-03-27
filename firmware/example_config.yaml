@@ -64,6 +64,5 @@ packages:
   spoolman:     !include common/spoolman.yaml
   filaman:      !include common/filaman.yaml
   nfc:          !include common/nfc.yaml
-  # optional packages -- remove leading # if you use the hardware
-#  stepper:      !include common/stepper.yaml
-#  winder:       !include common/winder.yaml  
+  stepper:      !include common/stepper.yaml
+  winder:       !include common/winder.yaml  

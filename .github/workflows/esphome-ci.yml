@@ -36,7 +36,7 @@ jobs:
           EOF
 
       - name: Validate ESPHome Config
-        run: esphome config firmware/test-all.yaml
+        run: esphome config firmware/example_config.yaml
 
   build-release:
     needs: validate
