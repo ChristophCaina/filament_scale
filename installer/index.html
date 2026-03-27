@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESPHome Filament Scale – Web Installer</title>
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #0f1117;
+      --surface: #181c27;
+      --border:  #2a2f3f;
+      --accent:  #f5a623;
+      --accent2: #4fc3f7;
+      --text:    #e8eaf0;
+      --muted:   #6b7280;
+      --success: #4ade80;
+      --mono:    'Space Mono', monospace;
+      --sans:    'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(79,195,247,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,195,247,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    header {
+      width: 100%;
+      max-width: 780px;
+      padding: 3rem 1.5rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-family: var(--mono);
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: .2rem .6rem;
+      border-radius: 2px;
+      margin-bottom: 1.2rem;
+    }
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: blink 1.6s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .2; }
+    }
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      color: #fff;
+    }
+    h1 span { color: var(--accent); }
+    .subtitle {
+      margin-top: .75rem;
+      color: var(--muted);
+      font-size: .95rem;
+      font-weight: 300;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+    main {
+      width: 100%;
+      max-width: 780px;
+      padding: 0 1.5rem 4rem;
+      position: relative;
+      z-index: 1;
+    }
+    .section-label {
+      font-family: var(--mono);
+      font-size: .65rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .variants {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .variant-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.4rem 1.5rem 1.5rem;
+      cursor: pointer;
+      transition: border-color .2s, transform .15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .variant-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--border);
+      transition: background .2s;
+    }
+    .variant-card:hover,
+    .variant-card.selected { border-color: var(--accent); transform: translateY(-1px); }
+    .variant-card.selected::before { background: var(--accent); }
+    .variant-card input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: .8rem;
+    }
+    .card-icon { font-size: 1.6rem; line-height: 1; }
+    .card-check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .2s, background .2s;
+      flex-shrink: 0;
+    }
+    .variant-card.selected .card-check { border-color: var(--accent); background: var(--accent); }
+    .card-check::after {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .variant-card.selected .card-check::after { opacity: 1; }
+    .card-title { font-family: var(--mono); font-size: .95rem; font-weight: 700; color: #fff; margin-bottom: .3rem; }
+    .card-desc { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .9rem; }
+    .tag {
+      font-family: var(--mono);
+      font-size: .65rem;
+      padding: .2rem .5rem;
+      border-radius: 2px;
+      background: rgba(79,195,247,.08);
+      color: var(--accent2);
+      border: 1px solid rgba(79,195,247,.2);
+    }
+    .tag.winder {
+      background: rgba(245,166,35,.08);
+      color: var(--accent);
+      border-color: rgba(245,166,35,.2);
+    }
+    .install-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .install-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .install-info { flex: 1; min-width: 200px; }
+    .fw-name { font-family: var(--mono); font-size: .8rem; color: var(--accent2); margin-bottom: .25rem; }
+    .fw-hint { font-size: .8rem; color: var(--muted); }
+    esp-web-install-button::part(button) {
+      background: var(--accent);
+      color: #000;
+      font-family: var(--mono);
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 4px;
+      padding: .65rem 1.4rem;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    esp-web-install-button::part(button):hover { opacity: .88; transform: translateY(-1px); }
+    .requirements {
+      background: rgba(79,195,247,.04);
+      border: 1px solid rgba(79,195,247,.12);
+      border-radius: 6px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .req-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: .6rem;
+      margin-top: .8rem;
+    }
+    .req-item { display: flex; align-items: center; gap: .5rem; font-size: .82rem; color: var(--muted); }
+    .req-item::before { content: '✓'; color: var(--success); font-family: var(--mono); font-size: .75rem; flex-shrink: 0; }
+    .steps { counter-reset: step; display: flex; flex-direction: column; gap: .8rem; margin-bottom: 2.5rem; }
+    .step { display: flex; gap: 1rem; align-items: flex-start; }
+    .step-num {
+      counter-increment: step;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      font-family: var(--mono);
+      font-size: .7rem;
+      color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: .1rem;
+    }
+    .step-num::before { content: counter(step); }
+    .step-text { font-size: .87rem; color: var(--muted); line-height: 1.6; padding-top: .3rem; }
+    .step-text strong { color: var(--text); font-weight: 500; }
+    .step-text code {
+      font-family: var(--mono);
+      font-size: .78rem;
+      background: rgba(255,255,255,.06);
+      padding: .1rem .4rem;
+      border-radius: 3px;
+      color: var(--accent2);
+    }
+    .browser-warning {
+      display: none;
+      background: rgba(245,166,35,.08);
+      border: 1px solid rgba(245,166,35,.3);
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      font-size: .85rem;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+    footer {
+      width: 100%;
+      max-width: 780px;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .5rem;
+      position: relative;
+      z-index: 1;
+      margin-top: auto;
+    }
+    footer a { color: var(--muted); text-decoration: none; font-size: .8rem; font-family: var(--mono); transition: color .15s; }
+    footer a:hover { color: var(--accent2); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    @media (max-width: 500px) {
+      .variants { grid-template-columns: 1fr; }
+      .install-row { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">ESPHome · Web Installer</div>
+  <h1>⚖️ Filament Scale<br><span>&amp; Winder</span></h1>
+  <p class="subtitle">Flash your ESP32 directly from the browser — no software installation required. Choose a firmware variant and connect your device via USB.</p>
+</header>
+
+<main>
+
+  <div class="browser-warning" id="browserWarning">
+    ⚠️ Web Serial is only supported in <strong>Chrome</strong> or <strong>Edge</strong>. Please switch browsers to use the installer.
+  </div>
+
+  <p class="section-label">01 — Choose Firmware Variant</p>
+
+  <div class="variants" id="variantGrid">
+
+    <label class="variant-card selected" data-manifest="firmware-builds/manifest-scale.json">
+      <input type="radio" name="variant" value="scale" checked />
+      <div class="card-header">
+        <div class="card-icon">⚖️</div>
+        <div class="card-check"></div>
+      </div>
+      <div class="card-title">Scale Only</div>
+      <div class="card-desc">Standalone filament scale with display, menu navigation, Spoolman &amp; FilaMan integration.</div>
+      <div class="card-tags">
+        <span class="tag">HX711</span>
+        <span class="tag">ST7920</span>
+        <span class="tag">Spoolman</span>
+        <span class="tag">FilaMan</span>
+      </div>
+    </label>
+
+    <label class="variant-card" data-manifest="firmware-builds/manifest-scale-winder.json">
+      <input type="radio" name="variant" value="scale-winder" />
+      <div class="card-header">
+        <div class="card-icon">🔄</div>
+        <div class="card-check"></div>
+      </div>
+      <div class="card-title">Scale + Winder</div>
+      <div class="card-desc">Full featured: scale with optional winder add-on. Stepper motor control, potentiometer speed &amp; auto-detection.</div>
+      <div class="card-tags">
+        <span class="tag">HX711</span>
+        <span class="tag">ST7920</span>
+        <span class="tag winder">Stepper</span>
+        <span class="tag winder">Winder</span>
+        <span class="tag">Spoolman</span>
+      </div>
+    </label>
+
+  </div>
+
+  <p class="section-label">02 — Connect &amp; Flash</p>
+
+  <div class="install-panel">
+    <div class="install-row">
+      <div class="install-info">
+        <div class="fw-name" id="fwName">firmware: scale-only</div>
+        <div class="fw-hint">Connect your ESP32 via USB, then click Install.</div>
+      </div>
+      <esp-web-install-button id="installBtn" manifest="firmware-builds/manifest-scale.json">
+        <span slot="activate">▶ Install</span>
+        <span slot="unsupported">Browser not supported</span>
+      </esp-web-install-button>
+    </div>
+  </div>
+
+  <div class="requirements">
+    <p class="section-label" style="margin-bottom:0">Requirements</p>
+    <div class="req-grid">
+      <div class="req-item">Chrome or Edge browser</div>
+      <div class="req-item">USB cable (data, not charge-only)</div>
+      <div class="req-item">CP210x / CH340 driver installed</div>
+      <div class="req-item">ESP32 in normal boot mode</div>
+    </div>
+  </div>
+
+  <p class="section-label">03 — After Installation</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-text">Connect to the <strong>ESPHome Hotspot</strong> <code>filament-scale</code> that appears after first boot and enter your WiFi credentials.</div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-text">Open the device in your <strong>ESPHome dashboard</strong> or wait for Home Assistant to auto-discover it.</div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-text">Configure your Spoolman / FilaMan IP via <code>substitutions</code> in your local YAML and re-flash OTA.</div>
+    </div>
+    <div class="step">
+      <div class="step-num"></div>
+      <div class="step-text"><strong>Calibrate the scale</strong> — see <a href="../docs/calibration.md" style="color:var(--accent2)">calibration.md</a> for step-by-step instructions.</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span style="font-family:var(--mono);font-size:.75rem;color:var(--muted)">ESPHome Filament Scale</span>
+  <div class="footer-links">
+    <a href="../README.md">Docs</a>
+    <a href="../docs/calibration.md">Calibration</a>
+    <a href="https://github.com/" target="_blank">GitHub ↗</a>
+  </div>
+</footer>
+
+<script>
+  if (!navigator.serial) {
+    document.getElementById('browserWarning').style.display = 'block';
+  }
+
+  const cards = document.querySelectorAll('.variant-card');
+  const installBtn = document.getElementById('installBtn');
+  const fwName = document.getElementById('fwName');
+
+  const labels = {
+    'scale':        'firmware: scale-only',
+    'scale-winder': 'firmware: scale + winder',
+  };
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      cards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      card.querySelector('input').checked = true;
+      const manifest = card.dataset.manifest;
+      const value = card.querySelector('input').value;
+      installBtn.setAttribute('manifest', manifest);
+      fwName.textContent = labels[value] || manifest;
+    });
+  });
+</script>
+
+</body>
+</html>

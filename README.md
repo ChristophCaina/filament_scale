@@ -73,6 +73,12 @@ filaman_ip: "192.168.0.1:8083"
 
 FilaMan can also be run as a **Home Assistant Add-on** — see [ha-filaman-system](https://github.com/netscout2001/ha-filaman-system).
 -->
+
+## Documentation:
+* [Concept](docs/concept.md)
+* [Hardware](docs/hardware.md)
+* [Calibration](docs/calibration.md)
+* [API Documentation](docs/api.md)
 ---
 ---
 
@@ -146,3 +152,9 @@ filaman_ip: "192.168.0.1:8083"
 
 FilaMan kann auch als **Home Assistant Add-on** betrieben werden – siehe [ha-filaman-system](https://github.com/netscout2001/ha-filaman-system).
 -->
+
+## Dokumentation:
+* [Konzept](docs/concept.md#-konzept--architektur)
+* [Hardware](docs/hardware.md#-hardware-dokumentation)
+* [Kalibrierung](docs/calibration.md#voraussetzungen)
+* [API Dokumentation](docs/api.md#-api-dokumentation)

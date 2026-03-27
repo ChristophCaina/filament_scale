@@ -114,6 +114,8 @@ GND    ────────►  GND (logic)
 
 The ESP32 and logic components run at **3.3 V** (regulated on-board). The stepper motor requires a separate **12 V supply** connected directly to the stepper driver (VMOT/GND). Do not power the stepper from the ESP32's 3.3 V or 5 V rails.
 
+> *Note:* This section might change - goal is one 12V power-supply for the whole hardware
+
 | Rail | Consumers | Recommended Supply |
 | :--- | :--- | :--- |
 | 5 V (via USB) | ESP32, HX711, Display, Encoder, Buzzer | USB charger ≥ 1 A |
@@ -241,6 +243,8 @@ GND    ────────►  GND (Logik)
 ## Stromversorgung
 
 Der ESP32 und die Logikkomponenten laufen mit **3,3 V** (auf dem Board geregelt). Der Schrittmotor benötigt eine separate **12-V-Versorgung**, die direkt am Schrittmotortreiber (VMOT/GND) angeschlossen wird. Den Schrittmotor nicht über die 3,3-V- oder 5-V-Schiene des ESP32 betreiben.
+
+> **Note:** Dieser Bereich wird sich vermutlich noch ändern. Ziel ist eine einheitliche 12V Stromversorgung für die gesamte Hardware.
 
 | Schiene | Verbraucher | Empfohlene Versorgung |
 | :--- | :--- | :--- |
