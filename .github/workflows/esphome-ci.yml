@@ -11,7 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4 # Bleib bei v4, das ist korrekt
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+            python-version: '3.11'
+
+      - name: Install ESPHome
+        run: pip install esphome
 
       - name: Create dummy secrets.yaml
         run: |
@@ -24,10 +32,11 @@ jobs:
           echo "github_url: 'github://christophcaina/filament_scale/firmware/example_config.yaml'" >> secrets.yaml
 
       - name: Validate ESPHome Config
-        uses: esphome/build-action@v2
-        with:
-          version: latest
-          yaml_file: firmware/test-all.yaml
+        run: esphome config firmware/test-all.yaml
+      # uses: esphome/build-action@v2
+      # with:
+      #   version: latest
+      #   yaml_file: firmware/test-all.yaml
           # Wir deaktivieren den Cache explizit, falls die interne 
           # Action eine veraltete Cache-Version nutzt:
-          cache: false
+      #   cache: false
