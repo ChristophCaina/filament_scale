@@ -23,13 +23,15 @@ jobs:
 
       - name: Create dummy secrets.yaml
         run: |
-          echo "wifi_ssid: 'dummy_ssid'" > secrets.yaml
-          echo "wifi_password: 'dummy_password'" >> secrets.yaml
-          echo "spoolman_ip: '127.0.0.1'" >> secrets.yaml
-          echo "filaman_ip: '127.0.0.1'" >> secrets.yaml
-          echo "mqtt_broker: '127.0.0.1'" >> secrets.yaml
-          echo "api_encryption_key: 'MDEyMzQ1Njc4OTAxMjM0NQ=='" >> secrets.yaml
-          echo "github_url: 'github://christophcaina/filament_scale/firmware/example_config.yaml'" >> secrets.yaml
+          cat <<EOF > firmware/secrets.yaml
+          wifi_ssid: 'dummy_ssid'
+          wifi_password: 'dummy_password'
+          spoolman_ip: '127.0.0.1'
+          filaman_ip: '127.0.0.1'
+          mqtt_broker: '127.0.0.1'
+          api_encryption_key: 'MDEyMzQ1Njc4OTAxMjM0NQ=='
+          github_url: 'github://christophcaina/filament_scale/firmware/example_config.yaml'
+          EOF
 
       - name: Validate ESPHome Config
         run: esphome config firmware/test-all.yaml
