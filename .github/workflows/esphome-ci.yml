@@ -70,7 +70,7 @@ jobs:
         run: |
           cat <<EOF > firmware/secrets.yaml
           wifi_ssid: 'dummy'
-          wifi_password: 'dummy'
+          wifi_password: 'dummy123'
           spoolman_ip: '127.0.0.1'
           api_key: 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE='
           ota_password: '123'
