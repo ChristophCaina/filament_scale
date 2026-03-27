@@ -11,10 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Bleib bei v4, das ist korrekt
 
       - name: Create dummy secrets.yaml
-        # Wir erstellen die Datei im Hauptverzeichnis (Root)
         run: |
           echo "wifi_ssid: 'dummy_ssid'" > secrets.yaml
           echo "wifi_password: 'dummy_password'" >> secrets.yaml
@@ -28,5 +27,7 @@ jobs:
         uses: esphome/build-action@v2
         with:
           version: latest
-          # Pfad zu deiner Haupt-Konfigurationsdatei
           yaml_file: firmware/test-all.yaml
+          # Wir deaktivieren den Cache explizit, falls die interne 
+          # Action eine veraltete Cache-Version nutzt:
+          cache: false
