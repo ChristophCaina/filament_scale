@@ -1,0 +1,16 @@
+# .github/labeler.yml
+"area: documentation":
+  - changed-files:
+    - any-glob-to-any-file: ['docs/*.md', 'README.md', 'index.html', 'docs.html']
+
+"area: firmware":
+  - changed-files:
+    - any-glob-to-any-file: ['firmware-builds/**', 'src/**']
+
+"area: hardware":
+  - changed-files:
+    - any-glob-to-any-file: ['3d-files/**', 'hardware.md', 'pcb-layouts']
+
+"area: infrastructure":
+  - changed-files:
+    - any-glob-to-any-file: ['.github/workflows/**']
