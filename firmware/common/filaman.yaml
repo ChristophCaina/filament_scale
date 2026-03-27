@@ -14,34 +14,6 @@ button:
     id: btn_sync_filaman
     name: "${device_name} Sync FilaMan"
     icon: mdi:cloud-upload-outline
-    on_press:
-      then:
-        - script.execute: script_push_filaman
-
-script:
-  - id: script_push_filaman
-    mode: single
-    then:
-      - http_request.post:
-          url: "http://${filaman_ip}/api/scale"
-          request_headers:
-            Content-Type: application/json
-          body: !lambda |-
-            char body[128];
-            snprintf(body, sizeof(body),
-              "{\"weight\": %.1f, \"spool_id\": \"%d\"}",
-              id(scale_weight).state,
-              id(spoolman_spool_id));
-            return std::string(body);
-          on_response:
-            then:
-              - lambda: |-
-                  [](int status_code){
-                    if (status_code == 200 || status_code == 201) {
-                      ESP_LOGI("filaman", "Sync OK");
-                      id(beep_confirm).execute();
-                    } else {
-                      ESP_LOGW("filaman", "Sync failed: %d", status_code);
-                      id(beep_error).execute();
-                    }
-                  }(status_code);
+#    on_press:
+#      then:
+#        - script.execute: script_push_filaman
