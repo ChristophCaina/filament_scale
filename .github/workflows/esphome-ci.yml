@@ -28,8 +28,8 @@ jobs:
           wifi_password: 'dummy_password'
           spoolman_ip: '127.0.0.1'
           filaman_ip: '127.0.0.1'
-          mqtt_broker: '127.0.0.1'
-          api_encryption_key: 'MDEyMzQ1Njc4OTAxMjM0NQ=='
+          api_key: 'MDEyMzQ1Njc4OTAxMjM0NQ=='
+          ota_password: '123'
           github_url: 'github://christophcaina/filament_scale/firmware/example_config.yaml'
           EOF
 
