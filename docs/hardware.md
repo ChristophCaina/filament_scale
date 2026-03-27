@@ -163,7 +163,7 @@ Dieses Dokument beschreibt die verwendeten Hardware-Komponenten, ihre Verdrahtun
 | Widerstand 330 Ω | Strombegrenzung für LED | 1 |
 | Netzteil | 5 V / 2 A USB oder Hohlbuchse | 1 |
 
-> > #### **Abmessungen für die Wägezelle**
+> #### **Abmessungen für die Wägezelle**
 > * **Gesamtmaße:** 80 mm x 12,7 mm x 12,7 mm
 > * **Bohrungen:** 4 x M4 oder M5 (je nach Modell)
 > * **Lochabstände (Mitte zu Mitte):**
