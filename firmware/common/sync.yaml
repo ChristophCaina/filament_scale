@@ -44,80 +44,80 @@ esphome:
 
 script:
   # ── Step 1: Detect which backend to use ──────────────────
-  - id: script_detect_backend
-    mode: single
-    then:
-      - if:
-          condition:
-            lambda: |-
-              std::string ip = "${filaman_ip}";
-              return !ip.empty() && ip != "0.0.0.0";
-          then:
-            # FilaMan configured → probe health endpoint
-            - http_request.get:
-                url: "http://${filaman_ip}/spoolman/api/v1/health"
-                on_response:
-                  then:
-                    - lambda: |-
-                        if (status_code == 200) {
-                          id(sync_use_filaman) = true;
-                          id(sync_backend_url) =
-                            "http://${filaman_ip}/spoolman/api/v1/spool/";
-                          ESP_LOGI("sync", "Backend: FilaMan (%s)",
-                            "${filaman_ip}");
-                        } else {
-                          id(sync_use_filaman) = false;
-                          id(sync_backend_url) =
-                            "http://${spoolman_ip}/api/v1/spool/";
-                          ESP_LOGW("sync",
-                            "FilaMan probe failed (%d), fallback: Spoolman",
-                            status_code);
-                        }
-          else:
-            # FilaMan not configured → use Spoolman directly
-            - lambda: |-
-                id(sync_use_filaman) = false;
-                id(sync_backend_url) =
-                  "http://${spoolman_ip}/api/v1/spool/";
-                ESP_LOGI("sync", "Backend: Spoolman (%s)", "${spoolman_ip}");
+#  - id: script_detect_backend
+#    mode: single
+#    then:
+#      - if:
+#          condition:
+#            lambda: |-
+#              std::string ip = "${filaman_ip}";
+#              return !ip.empty() && ip != "0.0.0.0";
+#          then:
+#            # FilaMan configured → probe health endpoint
+#            - http_request.get:
+#                url: "http://${filaman_ip}/spoolman/api/v1/health"
+#                on_response:
+#                  then:
+#                    - lambda: |-
+#                        if (status_code == 200) {
+#                          id(sync_use_filaman) = true;
+#                          id(sync_backend_url) =
+#                            "http://${filaman_ip}/spoolman/api/v1/spool/";
+#                          ESP_LOGI("sync", "Backend: FilaMan (%s)",
+#                            "${filaman_ip}");
+#                        } else {
+#                          id(sync_use_filaman) = false;
+#                          id(sync_backend_url) =
+#                            "http://${spoolman_ip}/api/v1/spool/";
+#                          ESP_LOGW("sync",
+#                            "FilaMan probe failed (%d), fallback: Spoolman",
+#                            status_code);
+#                        }
+#          else:
+#            # FilaMan not configured → use Spoolman directly
+#            - lambda: |-
+#                id(sync_use_filaman) = false;
+#                id(sync_backend_url) =
+#                  "http://${spoolman_ip}/api/v1/spool/";
+#                ESP_LOGI("sync", "Backend: Spoolman (%s)", "${spoolman_ip}");
 
   # ── Step 2: Push weight to active backend ─────────────────
-  - id: script_push_weight
-    mode: single
-    then:
-      - http_request.patch:
-          url: !lambda |-
-            return id(sync_backend_url) +
-                   std::to_string(id(spoolman_spool_id));
-          headers:
-            Content-Type: application/json
-          body: !lambda |-
-            char body[64];
-            snprintf(body, sizeof(body),
-              "{\"remaining_weight\": %.1f}",
-              id(scale_weight).state);
-            return std::string(body);
-          on_response:
-            then:
-              - lambda: |-
-                  if (status_code == 200) {
-                    ESP_LOGI("sync", "Sync OK → spool #%d = %.1f g",
-                      id(spoolman_spool_id), id(scale_weight).state);
-                    id(beep_confirm).execute();
-                  } else if (status_code == 404) {
-                    ESP_LOGW("sync", "Spool #%d not found (404)",
-                      id(spoolman_spool_id));
-                    id(beep_error).execute();
-                  } else {
-                    ESP_LOGW("sync", "Sync failed: HTTP %d", status_code);
-                    id(beep_error).execute();
-                  }
+#  - id: script_push_weight
+#    mode: single
+#    then:
+#      - http_request.patch:
+#          url: !lambda |-
+#            return id(sync_backend_url) +
+#                   std::to_string(id(spoolman_spool_id));
+#          headers:
+#            Content-Type: application/json
+#          body: !lambda |-
+#            char body[64];
+#            snprintf(body, sizeof(body),
+#              "{\"remaining_weight\": %.1f}",
+#              id(scale_weight).state);
+#            return std::string(body);
+#          on_response:
+#            then:
+#              - lambda: |-
+#                  if (status_code == 200) {
+#                    ESP_LOGI("sync", "Sync OK → spool #%d = %.1f g",
+#                      id(spoolman_spool_id), id(scale_weight).state);
+#                    id(beep_confirm).execute();
+#                  } else if (status_code == 404) {
+#                    ESP_LOGW("sync", "Spool #%d not found (404)",
+#                      id(spoolman_spool_id));
+#                    id(beep_error).execute();
+#                  } else {
+#                    ESP_LOGW("sync", "Sync failed: HTTP %d", status_code);
+#                    id(beep_error).execute();
+#                  }
 
 button:
   - platform: template
     id: btn_sync
     name: "${device_name} Sync"
     icon: mdi:cloud-upload
-    on_press:
-      then:
-        - script.execute: script_push_weight
+#    on_press:
+#      then:
+#        - script.execute: script_push_weight
