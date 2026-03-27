@@ -38,3 +38,32 @@ body:
     attributes:
       label: "Steps to Reproduce / Schritte zur Reproduktion"
       placeholder: "1. Connected USB...\n2. Clicked Install..."
+  
+  - type: input
+    id: esphome_version
+    attributes:
+      label: "ESPHome Version"
+      description: "Which version are you using? (e.g., 2024.2.2) / Welche Version nutzt du?"
+      placeholder: "2024.x.x"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: board_type
+    attributes:
+      label: "Board / Microcontroller"
+      description: "Which ESP32 are you using? / Welchen ESP32 nutzt du?"
+      options:
+        - "ESP32 DevKit v1"
+        - "ESP32-C3"
+        - "ESP32-S3"
+        - "Other / Anderer"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "ESPHome Logs"
+      description: "Please paste relevant log output here (if available). / Bitte relevante Log-Ausgaben hier einfügen."
+      placeholder: "[12:00:01][D][sensor:092]: 'Scale Raw': Sending state..."

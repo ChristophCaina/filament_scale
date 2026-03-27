@@ -19,20 +19,27 @@ jobs:
 
             // 1. Firmware & API (Multi-lang)
             if (body.includes('firmware') || body.includes('integration') || body.includes('esp32')) 
-            labels.push('area: firmware');
+              labels.push('area: firmware');
 
             // 2. Hardware (Multi-lang)
             if (body.includes('hardware') || body.includes('3d-print') || body.includes('mechanik') || body.includes('wiring')) 
-            labels.push('area: hardware');
+              labels.push('area: hardware');
 
             // 3. Documentation & Web (Multi-lang)
             if (body.includes('doc') || body.includes('web') || body.includes('readme') || body.includes('anleitung')) 
-            labels.push('area: documentation');
+              labels.push('area: documentation');
 
             // 4. Standard-Typen (Keywords)
             if (title.includes('bug') || body.includes('fehler') || title.includes('fix')) labels.push('bug');
             if (title.includes('feature') || title.includes('wunsch') || title.includes('add')) labels.push('enhancement');
             if (title.includes('frage') || title.includes('?') || title.includes('how')) labels.push('question');
+
+            // Zusätzliche Logik für den Labeler
+            if (body.includes('esp32-c3') || body.includes('esp32-s3')) 
+              labels.push('area: hardware');
+
+            if (body.includes('log') && body.includes('error'))
+              labels.push('bug');
 
             const uniqueLabels = [...new Set(labels)];
             if (uniqueLabels.length > 0) {
