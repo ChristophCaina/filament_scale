@@ -11,6 +11,7 @@ esp32:
 wifi:
   ssid: ${wifi_ssid}
   password: ${wifi_password}
+  id: wifi_component
   ap:
     ssid: "${device_name} Fallback"
     password: ${ap_password}
