@@ -30,10 +30,6 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    # Only deploy when:
-    # - manual push to site/ on main
-    # - manual workflow_dispatch
-    # - ESPHome CI completed successfully (tag builds only)
     if: >
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
@@ -65,12 +61,18 @@ jobs:
           else
             BIN_URL=$(echo "$RELEASE" | jq -r \
               '.assets[] | select(.name == "filament-scale.bin") | .browser_download_url')
+            OTA_URL=$(echo "$RELEASE" | jq -r \
+              '.assets[] | select(.name == "filament-scale.ota.bin") | .browser_download_url')
             MANIFEST_URL=$(echo "$RELEASE" | jq -r \
               '.assets[] | select(.name == "manifest-scale.json") | .browser_download_url')
 
             mkdir -p site/firmware-builds
-            echo "Downloading binary: $BIN_URL"
+
+            echo "Downloading factory binary: $BIN_URL"
             curl -L -o site/firmware-builds/filament-scale.bin "$BIN_URL"
+
+            echo "Downloading OTA binary: $OTA_URL"
+            curl -L -o site/firmware-builds/filament-scale.ota.bin "$OTA_URL"
 
             echo "Downloading manifest: $MANIFEST_URL"
             curl -L -o site/firmware-builds/manifest-scale.json "$MANIFEST_URL"
