@@ -15,10 +15,6 @@ substitutions:
   wifi_password: !secret wifi_password
   ap_password: "filament123"
 
-  # -- ESPHome API & OTA --
-  api_key: !secret api_key
-  ota_password: !secret ota_password
-
   # -- Integration IPs --
   spoolman_ip: "192.168.0.1:7912"
   filaman_ip: "192.168.0.1:8083"

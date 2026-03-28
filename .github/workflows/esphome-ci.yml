@@ -24,12 +24,12 @@ jobs:
       - name: Install ESPHome
         run: pip install esphome
 
-      - name: Patch substitutions for validation
+      - name: Create secrets.yaml for CI
         run: |
-          sed -i 's/api_key: ""/api_key: "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE="/' firmware/main.yaml
-          sed -i 's/ota_password: ""/ota_password: "dummy123"/' firmware/main.yaml
-          sed -i 's/wifi_ssid: "your_wifi_ssid"/wifi_ssid: "dummy_ssid"/' firmware/main.yaml
-          sed -i 's/wifi_password: "your_wifi_password"/wifi_password: "dummy_password"/' firmware/main.yaml
+          cat <<EOF > /config/esphome/secrets.yaml
+          wifi_ssid: 'dummy'
+          wifi_password: 'dummy123'
+          EOF
 
       - name: Validate ESPHome Config
         run: esphome config firmware/main.yaml

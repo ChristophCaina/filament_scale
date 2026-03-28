@@ -14,14 +14,6 @@ substitutions:
   device_friendly_name: "Filament Scale"
   device_comment: "Filament Scale — Spoolman & FilaMan integration"
 
-  # -- WiFi --
-  # After Take Control: replace with !secret wifi_ssid / !secret wifi_password
-  # and add to your secrets.yaml:
-  #   wifi_ssid: "YourSSID"
-  #   wifi_password: "YourPassword"
-  wifi_ssid: "your_wifi_ssid"
-  wifi_password: "your_wifi_password"
-
   # -- ESPHome API & OTA --
   # After Take Control: ESPHome will auto-generate these.
   # Replace with !secret api_key / !secret ota_password
@@ -64,4 +56,4 @@ packages:
   stepper:  github://ChristophCaina/filament_scale/firmware/common/stepper.yaml@main
   winder:   github://ChristophCaina/filament_scale/firmware/common/winder.yaml@main
   sync:     github://ChristophCaina/filament_scale/firmware/common/sync.yaml@main
-  # nfc:    github://ChristophCaina/filament_scale/firmware/common/nfc.yaml@main
+  nfc:      github://ChristophCaina/filament_scale/firmware/common/nfc.yaml@main
