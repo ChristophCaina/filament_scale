@@ -28,6 +28,12 @@ api:
 ota:
   - platform: esphome
     password: ${ota_password}
+  - platform: http_request
+
+update:
+  - platform: http_request
+    name: "Firmware Update"
+    source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
 
 # -- Status LED --
 status_led:

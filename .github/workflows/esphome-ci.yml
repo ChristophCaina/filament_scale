@@ -86,11 +86,18 @@ jobs:
       - name: Find and Prepare Binary
         shell: bash
         run: |
-          REAL_BIN=$(find firmware/.esphome/build -name "firmware.bin" | head -n 1)
+          # firmware-factory.bin = merged binary (Bootloader + Partitionstabelle + App)
+          # Required for initial flashing via Web Installer (offset 0x0)
+          REAL_BIN=$(find firmware/.esphome/build -name "firmware-factory.bin" | head -n 1)
           if [ -z "$REAL_BIN" ]; then
-            echo "Error: Compiled firmware.bin not found!"
+            echo "firmware-factory.bin not found, falling back to firmware.bin"
+            REAL_BIN=$(find firmware/.esphome/build -name "firmware.bin" | head -n 1)
+          fi
+          if [ -z "$REAL_BIN" ]; then
+            echo "Error: No firmware binary found!"
             exit 1
           fi
+          echo "Using binary: $REAL_BIN"
           TARGET_NAME="filament-scale.bin"
           cp "$REAL_BIN" "./$TARGET_NAME"
           echo "TARGET_BIN_PATH=./$TARGET_NAME" >> $GITHUB_ENV
@@ -101,9 +108,13 @@ jobs:
         run: |
           cp ${{ env.TARGET_BIN_PATH }} installer/firmware-builds/filament-scale.bin
 
-      - name: Update manifest version
+      - name: Update manifest version and MD5
         run: |
-          jq --arg v "${{ env.APP_VERSION }}" '.version = $v' \
+          # Calculate MD5 of the binary for OTA integrity check
+          MD5=$(md5sum installer/firmware-builds/filament-scale.bin | cut -d' ' -f1)
+          echo "Binary MD5: $MD5"
+          jq --arg v "${{ env.APP_VERSION }}" --arg md5 "$MD5" \
+            '.version = $v | .builds[0].ota.md5 = $md5' \
             installer/firmware-builds/manifest-scale.json > /tmp/manifest.json
           mv /tmp/manifest.json installer/firmware-builds/manifest-scale.json
 

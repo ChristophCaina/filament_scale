@@ -11,7 +11,13 @@
           "path": "filament-scale.bin",
           "offset": 0
         }
-      ]
+      ],
+      "ota": {
+        "path": "filament-scale.bin",
+        "md5": "PLACEHOLDER_REPLACED_BY_CI",
+        "summary": "See release notes on GitHub",
+        "release_url": "https://github.com/ChristophCaina/filament_scale/releases/latest"
+      }
     }
   ]
 }
