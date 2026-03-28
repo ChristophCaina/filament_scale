@@ -8,6 +8,11 @@ esp32:
   framework:
     type: esp-idf
 
+update:
+  - platform: http_request
+    name: "Firmware Update"
+    source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
+
 wifi:
   ssid: ${wifi_ssid}
   password: ${wifi_password}

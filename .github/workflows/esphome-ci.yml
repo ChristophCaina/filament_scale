@@ -86,11 +86,18 @@ jobs:
       - name: Find and Prepare Binary
         shell: bash
         run: |
-          REAL_BIN=$(find firmware/.esphome/build -name "firmware.bin" | head -n 1)
+          # firmware-factory.bin = merged binary (Bootloader + Partitionstabelle + App)
+          # Required for initial flashing via Web Installer (offset 0x0)
+          REAL_BIN=$(find firmware/.esphome/build -name "firmware-factory.bin" | head -n 1)
           if [ -z "$REAL_BIN" ]; then
-            echo "Error: Compiled firmware.bin not found!"
+            echo "firmware-factory.bin not found, falling back to firmware.bin"
+            REAL_BIN=$(find firmware/.esphome/build -name "firmware.bin" | head -n 1)
+          fi
+          if [ -z "$REAL_BIN" ]; then
+            echo "Error: No firmware binary found!"
             exit 1
           fi
+          echo "Using binary: $REAL_BIN"
           TARGET_NAME="filament-scale.bin"
           cp "$REAL_BIN" "./$TARGET_NAME"
           echo "TARGET_BIN_PATH=./$TARGET_NAME" >> $GITHUB_ENV
