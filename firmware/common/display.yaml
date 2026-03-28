@@ -58,11 +58,6 @@ display:
         it.print(0, 34, id(font_small), "Remaining:");
         it.print(70, 34, id(font_small), buf);
 
-        // WiFi indicator
-        if (id(wifi_component).is_connected()) {
-          it.print(110, 0, id(font_small), "W");
-        }
-
         // Menu hint
         it.print(0, 54, id(font_small), "[ turn: menu ]");
       }
