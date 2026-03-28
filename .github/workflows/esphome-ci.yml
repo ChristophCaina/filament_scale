@@ -69,11 +69,15 @@ jobs:
         run: |
           BUILD_DIR="${{ steps.esphome-build.outputs.name }}"
 
-          # Copy and rename binary to fixed name
+          # Copy and rename factory binary for Web Installer
           cp "${BUILD_DIR}/"*.factory.bin ./filament-scale.bin
 
-          # Fix binary path in manifest to match renamed file
-          jq '.builds[0].parts[0].path = "filament-scale.bin"'             "${BUILD_DIR}/manifest.json" > ./manifest-scale.json
+          # Copy and rename OTA binary for HA updates
+          cp "${BUILD_DIR}/"*.ota.bin ./filament-scale.ota.bin
+
+          # Fix binary path in manifest to match renamed file (both parts and ota)
+          jq '.builds[0].parts[0].path = "filament-scale.bin" | .builds[0].ota.path = "filament-scale.ota.bin"' \
+            "${BUILD_DIR}/manifest.json" > ./manifest-scale.json
 
           echo "Release assets prepared:"
           ls -la ./filament-scale.bin ./manifest-scale.json
@@ -86,6 +90,7 @@ jobs:
         with:
           files: |
             ./filament-scale.bin
+            ./filament-scale.ota.bin
             ./manifest-scale.json
           name: "Release ${{ env.APP_VERSION }}"
           body: |
