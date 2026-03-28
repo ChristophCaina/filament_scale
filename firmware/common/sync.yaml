@@ -118,7 +118,7 @@ script:
           url: !lambda |-
             return id(sync_backend_url) +
                    std::to_string(id(spoolman_spool_id));
-          headers:
+          request_headers:
             Content-Type: application/json
           body: !lambda |-
             char body[64];
