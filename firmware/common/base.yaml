@@ -33,6 +33,8 @@ captive_portal:
 logger:
   level: INFO
 
+api:
+
 ota:
   - platform: esphome
   - platform: http_request
