@@ -3,10 +3,6 @@ name: ESPHome CI
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'site/**'
-      - 'docs/**'
-      - '**.md'
     tags:
       - '[0-9][0-9][0-9][0-9].*'
   pull_request:
@@ -40,7 +36,7 @@ jobs:
           EOF
 
       - name: Validate ESPHome Config
-        run: esphome config firmware/example_config.yaml
+        run: esphome config firmware/main.yaml
 
   # ── Build & Release on tags only ────────────────────────────
   build-release:
@@ -78,7 +74,7 @@ jobs:
         id: esphome-build
         uses: esphome/build-action@v6
         with:
-          yaml-file: firmware/example_config.yaml
+          yaml-file: firmware/main.yaml
           complete-manifest: true
           release-url: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
           release-summary: "Filament Scale ${{ github.ref_name }}"

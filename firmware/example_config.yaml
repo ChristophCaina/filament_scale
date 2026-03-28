@@ -27,24 +27,24 @@ substitutions:
   # Run calibration procedure (see docs/calibration.md) to find your value.
   scale_calibration_factor: "420.0"
 
-  # -- Pin assignments --
-  pin_status_led:    GPIO02         # Status LED (internal)
-  pin_display_clk:   GPIO18         # Ender Display -> SPI_CLK
-  pin_display_mosi:  GPIO23         # Ender Display -> SPI_MOSI
-  pin_display_cs:    GPIO17         # Ender Display -> CS
-  pin_encoder_a:     GPIO32         # Ender Display -> ENC_A
-  pin_encoder_b:     GPIO33         # Ender Display -> ENC_B
-  pin_encoder_btn:   GPIO19         # Ender Display -> ENC_BTN
-  pin_buzzer:        GPIO16         # Ender Display -> BUZZER
-  pin_scale_dt:      GPIO21         # HX711 DOUT
-  pin_scale_sck:     GPIO22         # HX711 CLK
-  pin_i2c_sda:       GPIO13         # I2C SDA (NFC)
-  pin_i2c_scl:       GPIO14         # I2C SCL (NFC)
-  pin_stepper_step:  GPIO25         
-  pin_stepper_dir:   GPIO26
-  pin_filament_sens: GPIO27
-  pin_speed_poti:    GPIO34
-  pin_addon_detect:  GPIO05
+  # -- Pin assignments (default: Ender3/Ender5 display + ESP32 DevKit) --
+  pin_status_led:    GPIO02   # Status LED (built-in on most boards)
+  pin_display_clk:   GPIO18   # ST7920 CLK (Ender display EXP1)
+  pin_display_mosi:  GPIO23   # ST7920 MOSI
+  pin_display_cs:    GPIO17   # ST7920 CS
+  pin_encoder_a:     GPIO32   # Rotary encoder A
+  pin_encoder_b:     GPIO33   # Rotary encoder B
+  pin_encoder_btn:   GPIO19   # Rotary encoder button
+  pin_buzzer:        GPIO16   # Buzzer
+  pin_scale_dt:      GPIO21   # HX711 DOUT
+  pin_scale_sck:     GPIO22   # HX711 CLK
+  pin_i2c_sda:       GPIO13   # I2C SDA (NFC)
+  pin_i2c_scl:       GPIO14   # I2C SCL (NFC)
+  pin_stepper_step:  GPIO25   # Stepper STEP (winder add-on)
+  pin_stepper_dir:   GPIO26   # Stepper DIR (winder add-on)
+  pin_filament_sens: GPIO27   # Filament runout sensor
+  pin_speed_poti:    GPIO34   # Potentiometer (winder speed)
+  pin_addon_detect:  GPIO05   # Winder add-on detection
 
 
 packages:
