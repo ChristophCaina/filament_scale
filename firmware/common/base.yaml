@@ -23,6 +23,7 @@ dashboard_import:
 wifi:
   ssid: ${wifi_ssid}
   password: ${wifi_password}
+  id: wifi_component
   ap:
     ssid: "${device_name} Fallback"
     password: ${ap_password}
