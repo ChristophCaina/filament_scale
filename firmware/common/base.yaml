@@ -3,46 +3,6 @@
 # Base configuration: WiFi, API, OTA, Logger, LED, Buzzer,
 # Project info & dashboard_import
 # ============================================================
-esp32:
-  board: esp32dev
-  framework:
-    type: esp-idf
-
-esphome:
-  name: ${device_name}
-  friendly_name: ${device_friendly_name}
-  comment: ${device_comment}
-  project:
-    name: filascale.filamentspoolscale
-    version: 2026.3.1  
-
-dashboard_import:
-  package_import_url: github://ChristophCaina/filament_scale/firmware/main.yaml@main
-  import_full_config: false
-
-wifi:
-  ssid: !secret wifi_password
-  password: !secret wifi_password
-  id: wifi_component
-  ap:
-    ssid: "${device_name} Fallback"
-    password: ${ap_password}
-
-captive_portal:
-
-logger:
-  level: INFO
-
-api:
-
-ota:
-  - platform: esphome
-  - platform: http_request
-
-update:
-  - platform: http_request
-    name: "${device_name} Firmware Update"
-    source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
 
 # -- Status LED --
 status_led:

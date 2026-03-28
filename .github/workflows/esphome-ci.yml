@@ -24,13 +24,6 @@ jobs:
       - name: Install ESPHome
         run: pip install esphome
 
-      - name: Create secrets.yaml for CI
-        run: |
-          cat <<EOF > firmware/secrets.yaml
-          wifi_ssid: 'dummy'
-          wifi_password: 'dummy123'
-          EOF
-
       - name: Validate ESPHome Config
         run: esphome config firmware/main.yaml
 
@@ -49,13 +42,6 @@ jobs:
       - name: Extract version from tag
         run: |
           echo "APP_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
-
-      - name: Create secrets.yaml for CI
-        run: |
-          cat <<EOF > firmware/secrets.yaml
-          wifi_ssid: 'dummy'
-          wifi_password: 'dummy123'
-          EOF
 
       # ── esphome/build-action does everything automatically: ──
       #    - compiles firmware

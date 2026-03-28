@@ -48,6 +48,56 @@ substitutions:
   pin_speed_poti:    GPIO34   # Potentiometer (winder speed)
   pin_addon_detect:  GPIO05   # Winder add-on detection
 
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  comment: ${device_comment}
+  name_add_mac_suffix: false
+  min_version: "2024.6.0"
+  project:
+    name: filascale.filamentspoolscale
+    version: "2026.3.1"
+ 
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+ 
+# -- WiFi: no credentials — configured via Improv or Captive Portal --
+wifi:
+  ap:
+    ssid: "${name} Fallback"
+    password: "filament123"
+ 
+# Allow provisioning WiFi via serial (used by ESP Web Tools after flash)
+improv_serial:
+ 
+# Allow provisioning WiFi via Bluetooth LE
+esp32_improv:
+  authorizer: none
+ 
+# Fallback: connect to AP and configure via browser
+captive_portal:
+ 
+logger:
+ 
+api:
+ 
+ota:
+  - platform: esphome
+ 
+dashboard_import:
+  package_import_url: github://ChristophCaina/filament_scale/firmware/main.yaml@main
+  import_full_config: false
+ 
+http_request:
+  verify_ssl: false
+ 
+update:
+  - platform: http_request
+    name: "${name} Firmware Update"
+    source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
+
 packages:
   base:     github://ChristophCaina/filament_scale/firmware/common/base.yaml@main
   scale:    github://ChristophCaina/filament_scale/firmware/common/scale.yaml@main
