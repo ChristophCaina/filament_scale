@@ -47,8 +47,7 @@ update:
     source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
 
 # -- Status LED --
-light:
-  - platform: status_led
+status_led:
     id: status_led
     pin:
       number: ${pin_status_led}
