@@ -16,12 +16,12 @@ substitutions:
   ap_password: "filament123"
 
   # -- Integration IPs --
-  spoolman_ip: "192.168.0.1:7912"
-  filaman_ip: "192.168.0.1:8083"
+  spoolman_ip: "192.168.0.1:7912"     # empty, if you want to configure it via HA entity instead
+  filaman_ip: "192.168.0.1:8083"      # empty, if you want to configure it via HA entity instead
 
   # -- Scale calibration --
   # Run calibration procedure (see docs/calibration.md) to find your value.
-  scale_calibration_factor: "420.0"
+  scale_calibration_factor: "420.0"   # empty, if you want to configure it via HA entity instead
 
   # -- Pin assignments (default: Ender3/Ender5 display + ESP32 DevKit) --
   pin_status_led:    GPIO02   # Status LED (built-in on most boards)

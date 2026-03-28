@@ -25,6 +25,10 @@ substitutions:
   spoolman_ip: ""
   filaman_ip: ""
 
+  # -- Scale calibration --
+  # Run calibration procedure (see docs/calibration.md) to find your value.
+  scale_calibration_factor: ""
+
   # -- Pin assignments (default: Ender3/Ender5 display + ESP32 DevKit) --
   pin_status_led:    GPIO02   # Status LED (built-in on most boards)
   pin_display_clk:   GPIO18   # ST7920 CLK (Ender display EXP1)
@@ -74,7 +78,26 @@ esp32_improv:
  
 # Fallback: connect to AP and configure via browser
 captive_portal:
- 
+
+# Enable Web server
+web_server:
+  port: 80
+#  css_include: "web/custom.css"
+  version: 3
+  sorting_groups:
+    - id: group_scale
+      name: "⚖️ Scale"
+      sorting_weight: 1
+    - id: group_sync
+      name: "☁️ Sync"
+      sorting_weight: 2
+    - id: group_config
+      name: "⚙️ Configuration"
+      sorting_weight: 3
+    - id: group_winder
+      name: "🔄 Winder"
+      sorting_weight: 4
+
 logger:
  
 api:
