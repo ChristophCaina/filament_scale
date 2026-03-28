@@ -49,8 +49,8 @@ substitutions:
   pin_addon_detect:  GPIO05   # Winder add-on detection
 
 esphome:
-  name: ${name}
-  friendly_name: ${friendly_name}
+  name: ${device_name}
+  friendly_name: ${device_friendly_name}
   comment: ${device_comment}
   name_add_mac_suffix: false
   min_version: "2024.6.0"
