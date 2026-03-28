@@ -9,6 +9,7 @@ on:
     branches: [ main ]
 
 jobs:
+  # ── Validate config on every push / PR ──────────────────────
   validate:
     runs-on: ubuntu-latest
     steps:
@@ -18,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-            python-version: '3.11'
+          python-version: '3.11'
 
       - name: Install ESPHome
         run: pip install esphome
@@ -32,44 +33,30 @@ jobs:
           filaman_ip: '127.0.0.1'
           api_key: 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE='
           ota_password: '123'
-          github_url: 'github://christophcaina/filament_scale/firmware/example_config.yaml'
           EOF
 
       - name: Validate ESPHome Config
         run: esphome config firmware/example_config.yaml
 
+  # ── Build & Release on tags only ────────────────────────────
   build-release:
     needs: validate
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install ESPHome & jq
+      - name: Extract version from tag
         run: |
-          pip install esphome
-          sudo apt-get update && sudo apt-get install jq -y
-
-      - name: Extract Version from Tag
-        run: |
-          # Use the git tag as version (strip leading 'v')
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Building version: $VERSION"
 
-      - name: Create dummy secrets.yaml (Build)
+      - name: Create secrets.yaml for build
         run: |
           cat <<EOF > firmware/secrets.yaml
           wifi_ssid: 'dummy'
@@ -78,50 +65,38 @@ jobs:
           filaman_ip: '127.0.0.1'
           api_key: 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE='
           ota_password: '123'
-          github_url: 'github://${{ github.repository }}/firmware/example_config.yaml'
           EOF
 
-      - name: Compile Firmware
-        run: esphome compile firmware/example_config.yaml
+      # ── esphome/build-action does everything automatically: ──
+      #    - compiles firmware
+      #    - finds firmware.factory.bin
+      #    - generates manifest with MD5/SHA256
+      #    - outputs folder named after the device
+      - name: Build firmware
+        id: esphome-build
+        uses: esphome/build-action@v6
+        with:
+          yaml-file: firmware/example_config.yaml
+          complete-manifest: true
+          release-url: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+          release-summary: "Filament Scale ${{ github.ref_name }}"
 
-      - name: Find and Prepare Binary
-        shell: bash
+      - name: Show build outputs
         run: |
-          # ESPHome with esp-idf generates firmware.factory.bin (dot, not dash!)
-          # This is the merged binary (Bootloader + Partitionstabelle + App)
-          # Required for initial flashing via Web Installer (offset 0x0)
-          echo "Available binaries:"
-          find firmware/.esphome/build -name "*.bin" | sort
+          echo "Build name: ${{ steps.esphome-build.outputs.name }}"
+          echo "Build version: ${{ steps.esphome-build.outputs.version }}"
+          ls -la "${{ steps.esphome-build.outputs.name }}/"
 
-          REAL_BIN=$(find firmware/.esphome/build -name "firmware.factory.bin" | head -n 1)
-          if [ -z "$REAL_BIN" ]; then
-            echo "firmware.factory.bin not found, falling back to firmware.bin"
-            REAL_BIN=$(find firmware/.esphome/build -name "firmware.bin" | head -n 1)
-          fi
-          if [ -z "$REAL_BIN" ]; then
-            echo "Error: No firmware binary found!"
-            exit 1
-          fi
-          echo "Using binary: $REAL_BIN"
-          cp "$REAL_BIN" ./filament-scale.bin
-          echo "TARGET_BIN_PATH=./filament-scale.bin" >> $GITHUB_ENV
-
-      - name: Generate updated manifest
+      # ── Rename files to fixed names for the installer ────────
+      - name: Prepare release assets
         run: |
-          MD5=$(md5sum ./filament-scale.bin | cut -d' ' -f1)
-          echo "Binary MD5: $MD5"
-          jq \
-            --arg v "${{ env.APP_VERSION }}" \
-            --arg md5 "$MD5" \
-            '.version = $v | .builds[0].ota.md5 = $md5' \
-            installer/firmware-builds/manifest-scale.json \
-            > ./manifest-scale.json
-          echo "Generated manifest:"
-          cat ./manifest-scale.json
+          BUILD_DIR="${{ steps.esphome-build.outputs.name }}"
+          cp "${BUILD_DIR}/"*.factory.bin ./filament-scale.bin
+          cp "${BUILD_DIR}/manifest.json" ./manifest-scale.json
+          echo "Release assets prepared:"
+          ls -la ./filament-scale.bin ./manifest-scale.json
 
-      # ── Upload .bin + manifest as Release Assets ─────────────
-      # No commit to main — deploy-installer.yml fetches these
-      # assets directly from the release.
+      # ── Upload as GitHub Release assets ─────────────────────
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
