@@ -24,16 +24,12 @@ jobs:
       - name: Install ESPHome
         run: pip install esphome
 
-      - name: Create dummy secrets.yaml
+      - name: Patch substitutions for validation
         run: |
-          cat <<EOF > firmware/secrets.yaml
-          wifi_ssid: 'dummy_ssid'
-          wifi_password: 'dummy_password'
-          spoolman_ip: '127.0.0.1'
-          filaman_ip: '127.0.0.1'
-          api_key: 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE='
-          ota_password: '123'
-          EOF
+          sed -i 's/api_key: ""/api_key: "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE="/' firmware/main.yaml
+          sed -i 's/ota_password: ""/ota_password: "dummy123"/' firmware/main.yaml
+          sed -i 's/wifi_ssid: "your_wifi_ssid"/wifi_ssid: "dummy_ssid"/' firmware/main.yaml
+          sed -i 's/wifi_password: "your_wifi_password"/wifi_password: "dummy_password"/' firmware/main.yaml
 
       - name: Validate ESPHome Config
         run: esphome config firmware/main.yaml
@@ -54,16 +50,12 @@ jobs:
         run: |
           echo "APP_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
 
-      - name: Create secrets.yaml for build
+      - name: Patch substitutions for build
         run: |
-          cat <<EOF > firmware/secrets.yaml
-          wifi_ssid: 'dummy'
-          wifi_password: 'dummy123'
-          spoolman_ip: '127.0.0.1'
-          filaman_ip: '127.0.0.1'
-          api_key: 'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE='
-          ota_password: '123'
-          EOF
+          sed -i 's/api_key: ""/api_key: "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE="/' firmware/main.yaml
+          sed -i 's/ota_password: ""/ota_password: "dummy123"/' firmware/main.yaml
+          sed -i 's/wifi_ssid: "your_wifi_ssid"/wifi_ssid: "dummy"/' firmware/main.yaml
+          sed -i 's/wifi_password: "your_wifi_password"/wifi_password: "dummy123"/' firmware/main.yaml
 
       # ── esphome/build-action does everything automatically: ──
       #    - compiles firmware
