@@ -1,30 +1,21 @@
 # ============================================================
 # base.yaml
-# Base configuration: WiFi, API, OTA, Logger, LED, Buzzer
+# Base configuration: WiFi, API, OTA, Logger, LED, Buzzer,
+# Project info & dashboard_import
 # ============================================================
 
-esp32:
-  board: esp32dev
-  framework:
-    type: esp-idf
-
 esphome:
-  name: ${device_name}
-  friendly_name: ${esp_project_name}
   project:
     name: "${namespace}.${esp_project}"
     version: ${esp_project_version}
 
-substitutions:
-  esp_project_version: '2026.3.1'
-  esp_project: "filamentspoolscale"
-  esp_project_name: "Filament Spool Scale"
-  namespace: "filascale"
+dashboard_import:
+  package_import_url: github://ChristophCaina/filament_scale/firmware/main.yaml@main
+  import_full_config: false
 
 wifi:
   ssid: ${wifi_ssid}
   password: ${wifi_password}
-  id: wifi_component
   ap:
     ssid: "${device_name} Fallback"
     password: ${ap_password}
@@ -45,18 +36,16 @@ ota:
 
 update:
   - platform: http_request
-    name: "Firmware Update"
+    name: "${device_name} Firmware Update"
     source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
 
-dashboard_import:
-  package_import_url: github://ChristophCaina/filament_scale/firmware/example_config.yaml@main
-  import_full_config: false
-
 # -- Status LED --
-status_led:
-  pin:
-    number: ${pin_status_led}
-    inverted: true
+light:
+  - platform: status_led
+    id: status_led
+    pin:
+      number: ${pin_status_led}
+      inverted: false
 
 # -- Buzzer --
 output:
@@ -85,22 +74,3 @@ script:
     then:
       - rtttl.play:
           rtttl: "error:d=4,o=5,b=100:16c5,16b4"
-
-sensor:
-  - platform: wifi_signal
-    name: "WLAN Signalstärke"
-    id: wifi_signal_strength
-    update_interval: 60s
-
-text_sensor:
-  - platform: wifi_info
-    ip_address:
-      name: "IP Adresse"
-      id: wifi_info_ip
-    ssid:
-      name: "SSID"
-      id: wifi_info_ssid
-
-time:
-  - platform: homeassistant
-    id: esptime

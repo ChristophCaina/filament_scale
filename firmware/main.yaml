@@ -1,0 +1,20 @@
+# ============================================================
+# main.yaml
+# This file is used by ESPHome dashboard_import.
+# It only contains package references — no secrets, no pins.
+#
+# After importing via "Take Control", ESPHome will ask you
+# to fill in your local substitutions (WiFi, pins, IPs etc.)
+# Use example_config.yaml as a reference for all available
+# substitutions.
+# ============================================================
+
+packages:
+  base:     github://ChristophCaina/filament_scale/firmware/common/base.yaml@main
+  scale:    github://ChristophCaina/filament_scale/firmware/common/scale.yaml@main
+  display:  github://ChristophCaina/filament_scale/firmware/common/display.yaml@main
+  controls: github://ChristophCaina/filament_scale/firmware/common/controls.yaml@main
+  stepper:  github://ChristophCaina/filament_scale/firmware/common/stepper.yaml@main
+  winder:   github://ChristophCaina/filament_scale/firmware/common/winder.yaml@main
+  sync:     github://ChristophCaina/filament_scale/firmware/common/sync.yaml@main
+  # nfc:    github://ChristophCaina/filament_scale/firmware/common/nfc.yaml@main
