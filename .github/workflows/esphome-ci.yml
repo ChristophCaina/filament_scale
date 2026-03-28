@@ -25,7 +25,8 @@ jobs:
         run: pip install esphome
 
       - name: Validate ESPHome Config
-        run: esphome config firmware/main.yaml
+        # Use ci-validate.yaml with local !include paths so PRs validate against current branch
+        run: esphome config firmware/ci-validate.yaml
 
   # ── Build & Release on tags only ────────────────────────────
   build-release:

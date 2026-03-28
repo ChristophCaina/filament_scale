@@ -1,0 +1,88 @@
+# ============================================================
+# ci-validate.yaml
+# Used ONLY for CI validation — not for flashing!
+#
+# Uses local !include paths instead of github:// packages
+# so that PRs are validated against the current branch,
+# not against @main.
+# ============================================================
+
+substitutions:
+  name: "fila-scale"
+  friendly_name: "Filament Scale"
+  device_comment: "Filament Scale — CI Validation"
+  device_name: "fila-scale"
+
+  spoolman_ip: ""
+  filaman_ip: ""
+  scale_calibration_factor: ""
+
+  pin_status_led:    GPIO02
+  pin_display_clk:   GPIO18
+  pin_display_mosi:  GPIO23
+  pin_display_cs:    GPIO17
+  pin_encoder_a:     GPIO32
+  pin_encoder_b:     GPIO33
+  pin_encoder_btn:   GPIO19
+  pin_buzzer:        GPIO16
+  pin_scale_dt:      GPIO21
+  pin_scale_sck:     GPIO22
+  pin_i2c_sda:       GPIO13
+  pin_i2c_scl:       GPIO14
+  pin_stepper_step:  GPIO25
+  pin_stepper_dir:   GPIO26
+  pin_filament_sens: GPIO27
+  pin_speed_poti:    GPIO34
+  pin_addon_detect:  GPIO05
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  comment: ${device_comment}
+  name_add_mac_suffix: false
+  min_version: "2024.6.0"
+  project:
+    name: filascale.filamentspoolscale
+    version: "2026.3.1"
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+wifi:
+  ap:
+    ssid: "${name} Fallback"
+    password: "filament123"
+
+improv_serial:
+
+esp32_improv:
+  authorizer: none
+
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+  - platform: esphome
+
+http_request:
+  verify_ssl: false
+
+update:
+  - platform: http_request
+    name: "${name} Firmware Update"
+    source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
+
+packages:
+  base:     !include common/base.yaml
+  scale:    !include common/scale.yaml
+  display:  !include common/display.yaml
+  controls: !include common/controls.yaml
+  stepper:  !include common/stepper.yaml
+  winder:   !include common/winder.yaml
+  sync:     !include common/sync.yaml
+  # nfc:    !include common/nfc.yaml
