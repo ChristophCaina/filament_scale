@@ -61,12 +61,13 @@ jobs:
           pip install esphome
           sudo apt-get update && sudo apt-get install jq -y
 
-      - name: Extract Version from Manifest
-        id: get_version
+      - name: Extract Version from Tag
         run: |
-          VERSION=$(jq -r '.version' installer/firmware-builds/manifest-scale.json)
+          # Use the git tag as version (strip leading 'v')
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Detected Version from manifest: $VERSION"
+          echo "Building version: $VERSION"
 
       - name: Create dummy secrets.yaml (Build)
         run: |
@@ -98,49 +99,35 @@ jobs:
             exit 1
           fi
           echo "Using binary: $REAL_BIN"
-          TARGET_NAME="filament-scale.bin"
-          cp "$REAL_BIN" "./$TARGET_NAME"
-          echo "TARGET_BIN_PATH=./$TARGET_NAME" >> $GITHUB_ENV
-          echo "Prepared Binary: $TARGET_NAME"
+          cp "$REAL_BIN" ./filament-scale.bin
+          echo "TARGET_BIN_PATH=./filament-scale.bin" >> $GITHUB_ENV
 
-      # ── NEW: copy .bin into installer/firmware-builds/ ──────
-      - name: Copy binary to installer folder
+      - name: Generate updated manifest
         run: |
-          cp ${{ env.TARGET_BIN_PATH }} installer/firmware-builds/filament-scale.bin
-
-      - name: Update manifest version and MD5
-        run: |
-          # Calculate MD5 of the binary for OTA integrity check
-          MD5=$(md5sum installer/firmware-builds/filament-scale.bin | cut -d' ' -f1)
+          MD5=$(md5sum ./filament-scale.bin | cut -d' ' -f1)
           echo "Binary MD5: $MD5"
-          jq --arg v "${{ env.APP_VERSION }}" --arg md5 "$MD5" \
+          jq \
+            --arg v "${{ env.APP_VERSION }}" \
+            --arg md5 "$MD5" \
             '.version = $v | .builds[0].ota.md5 = $md5' \
-            installer/firmware-builds/manifest-scale.json > /tmp/manifest.json
-          mv /tmp/manifest.json installer/firmware-builds/manifest-scale.json
+            installer/firmware-builds/manifest-scale.json \
+            > ./manifest-scale.json
+          echo "Generated manifest:"
+          cat ./manifest-scale.json
 
-      # ── Commit .bin + updated manifest back to repo ─────────
-      - name: Commit firmware to repository
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add installer/firmware-builds/filament-scale.bin
-          git add installer/firmware-builds/manifest-scale.json
-          git commit -m "ci: update firmware binaries for ${{ github.ref_name }}" || echo "Nothing to commit"
-          # Pull with rebase to avoid race condition with concurrent workflows
-          git pull --rebase origin main
-          git push origin HEAD:main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # ── GitHub Release (keeps existing behaviour) ────────────
-      - name: Create Release and Upload Asset
+      # ── Upload .bin + manifest as Release Assets ─────────────
+      # No commit to main — deploy-installer.yml fetches these
+      # assets directly from the release.
+      - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.TARGET_BIN_PATH }}
+          files: |
+            ./filament-scale.bin
+            ./manifest-scale.json
           name: "Release v${{ env.APP_VERSION }}"
           body: |
             Automatischer Build für Version ${{ env.APP_VERSION }}.
-            
+
             **Web Installer:** https://christophcaina.github.io/filament_scale/
           tag_name: ${{ github.ref_name }}
           draft: false
