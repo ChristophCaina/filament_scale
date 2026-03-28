@@ -81,6 +81,7 @@ api:
  
 ota:
   - platform: http_request
+  - platform: esphome
  
 dashboard_import:
   package_import_url: github://ChristophCaina/filament_scale/firmware/main.yaml@main
