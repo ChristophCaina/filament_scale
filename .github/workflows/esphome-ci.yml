@@ -108,7 +108,7 @@ jobs:
           files: |
             ./filament-scale.bin
             ./manifest-scale.json
-          name: "Release v${{ env.APP_VERSION }}"
+          name: "Release ${{ env.APP_VERSION }}"
           body: |
             Automatischer Build für Version ${{ env.APP_VERSION }}.
 
