@@ -35,6 +35,10 @@ update:
     name: "Firmware Update"
     source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
 
+dashboard_import:
+  package_import_url: github://ChristophCaina/filament_scale/firmware/example_config.yaml@main
+  import_full_config: false
+
 # -- Status LED --
 status_led:
   pin:
