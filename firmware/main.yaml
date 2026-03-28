@@ -25,10 +25,6 @@ substitutions:
   spoolman_ip: ""
   filaman_ip: ""
 
-  # -- Scale calibration --
-  # See docs/calibration.md for how to find your value
-  scale_calibration_factor: "420.0"
-
   # -- Pin assignments (default: Ender3/Ender5 display + ESP32 DevKit) --
   pin_status_led:    GPIO02   # Status LED (built-in on most boards)
   pin_display_clk:   GPIO18   # ST7920 CLK (Ender display EXP1)
@@ -56,7 +52,7 @@ esphome:
   min_version: "2024.6.0"
   project:
     name: filascale.filamentspoolscale
-    version: "2026.3.1"
+    version: "2026.3.2"
  
 esp32:
   board: esp32dev

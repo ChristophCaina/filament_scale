@@ -1,58 +1,18 @@
 # ============================================================
 # scale.yaml
 # HX711 load cell: raw reading, calibration, tare, filters
+#
+# Calibration is done via Home Assistant number entities —
+# no reflash needed. Values are stored in flash (restore_value).
+#
+# Calibration procedure:
+#   1. Empty platform → press "Tare Scale"
+#   2. Place known weight (e.g. 1000g)
+#   3. Read "Scale Raw" value from HA / ESPHome logs
+#   4. Calculate: factor = raw_value / known_weight_in_grams
+#   5. Enter factor in "Calibration Factor" number entity
 # ============================================================
 
-sensor:
-  # -- Raw HX711 value (internal, used for calibration) --
-  - platform: hx711
-    id: scale_raw
-    name: "${device_name} Scale Raw"
-    internal: true
-    dout_pin: ${pin_scale_dt}
-    clk_pin: ${pin_scale_sck}
-    gain: 128
-    update_interval: 200ms
-
-  # -- Calibrated weight in grams --
-  - platform: template
-    id: scale_weight
-    name: "${device_name} Weight"
-    unit_of_measurement: "g"
-    accuracy_decimals: 1
-    icon: mdi:scale-balance
-    update_interval: 500ms
-    lambda: |-
-      float raw = id(scale_raw).state;
-      float tare = id(scale_tare_offset);
-      float factor = ${scale_calibration_factor};
-      float weight = (raw - tare) / factor;
-      // Clamp small negative values to zero (noise around zero point)
-      if (weight < 0.5f && weight > -5.0f) weight = 0.0f;
-      return weight;
-    filters:
-      - sliding_window_moving_average:
-          window_size: 5
-          send_every: 1
-      - delta: 0.5
-
-  # -- Filament remaining in % (based on known spool weight) --
-  - platform: template
-    id: filament_remaining_pct
-    name: "${device_name} Filament Remaining"
-    unit_of_measurement: "%"
-    accuracy_decimals: 0
-    icon: mdi:percent
-    update_interval: 5s
-    lambda: |-
-      float net = id(scale_weight).state;
-      float spool = id(spool_empty_weight);
-      float total = id(spool_total_filament);
-      if (total <= 0) return NAN;
-      float remaining = ((net - spool) / total) * 100.0f;
-      return clamp(remaining, 0.0f, 100.0f);
-
-# -- Tare offset stored in global --
 globals:
   - id: scale_tare_offset
     type: float
@@ -62,23 +22,138 @@ globals:
   - id: spool_empty_weight
     type: float
     restore_value: true
-    initial_value: "200.0"   # typical empty spool ~200g, adjust per spool
+    initial_value: "200.0"
 
   - id: spool_total_filament
     type: float
     restore_value: true
-    initial_value: "1000.0"  # typical 1kg spool
+    initial_value: "1000.0"
 
-# -- Tare button --
+number:
+  # -- Calibration factor (raw units per gram) --
+  - platform: template
+    id: calibration_factor
+    name: "${device_name} Calibration Factor"
+    icon: mdi:tune
+    entity_category: config
+    min_value: 1
+    max_value: 100000
+    step: 0.1
+    restore_value: true
+    initial_value: 420.0
+    optimistic: true
+    on_value:
+      then:
+        - logger.log:
+            format: "Calibration factor updated: %.1f"
+            args: ["x"]
+
+  # -- Empty spool weight --
+  - platform: template
+    id: num_spool_empty_weight
+    name: "${device_name} Empty Spool Weight"
+    icon: mdi:weight-gram
+    unit_of_measurement: "g"
+    entity_category: config
+    min_value: 0
+    max_value: 1000
+    step: 1
+    restore_value: true
+    initial_value: 200
+    optimistic: true
+    on_value:
+      then:
+        - globals.set:
+            id: spool_empty_weight
+            value: !lambda "return x;"
+
+  # -- Total filament weight --
+  - platform: template
+    id: num_spool_total_filament
+    name: "${device_name} Total Filament Weight"
+    icon: mdi:weight-gram
+    unit_of_measurement: "g"
+    entity_category: config
+    min_value: 0
+    max_value: 5000
+    step: 1
+    restore_value: true
+    initial_value: 1000
+    optimistic: true
+    on_value:
+      then:
+        - globals.set:
+            id: spool_total_filament
+            value: !lambda "return x;"
+
+sensor:
+  # -- Raw HX711 value (visible for calibration) --
+  - platform: hx711
+    id: scale_raw
+    name: "${device_name} Scale Raw"
+    internal: false
+    icon: mdi:numeric
+    entity_category: diagnostic
+    dout_pin: ${pin_scale_dt}
+    clk_pin: ${pin_scale_sck}
+    gain: 128
+    update_interval: 500ms
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 1
+
+  # -- Calibrated weight in grams --
+  - platform: template
+    id: scale_weight
+    name: "${device_name} Weight"
+    unit_of_measurement: "g"
+    accuracy_decimals: 1
+    icon: mdi:scale-balance
+    device_class: weight
+    state_class: measurement
+    update_interval: 500ms
+    lambda: |-
+      float raw = id(scale_raw).state;
+      float tare = id(scale_tare_offset);
+      float factor = id(calibration_factor).state;
+      if (factor <= 0) return 0.0f;
+      float weight = (raw - tare) / factor;
+      if (weight < 0.5f && weight > -5.0f) weight = 0.0f;
+      return weight;
+    filters:
+      - delta: 0.5
+
+  # -- Filament remaining in % --
+  - platform: template
+    id: filament_remaining_pct
+    name: "${device_name} Filament Remaining"
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    icon: mdi:percent
+    state_class: measurement
+    update_interval: 5s
+    lambda: |-
+      float net = id(scale_weight).state;
+      float spool = id(spool_empty_weight);
+      float total = id(spool_total_filament);
+      if (total <= 0) return NAN;
+      float remaining = ((net - spool) / total) * 100.0f;
+      return clamp(remaining, 0.0f, 100.0f);
+
 button:
+  # -- Tare / Zero the scale --
   - platform: template
     id: btn_tare
     name: "${device_name} Tare Scale"
     icon: mdi:scale-balance
+    entity_category: config
     on_press:
       then:
         - globals.set:
             id: scale_tare_offset
             value: !lambda "return id(scale_raw).state;"
         - script.execute: beep_confirm
-        - logger.log: "Scale tared."
+        - logger.log:
+            format: "Scale tared. Offset: %.0f"
+            args: ["id(scale_tare_offset)"]
