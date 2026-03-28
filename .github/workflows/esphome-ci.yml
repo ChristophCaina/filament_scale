@@ -26,7 +26,7 @@ jobs:
 
       - name: Create secrets.yaml for CI
         run: |
-          cat <<EOF > /config/esphome/secrets.yaml
+          cat <<EOF > firmware/secrets.yaml
           wifi_ssid: 'dummy'
           wifi_password: 'dummy123'
           EOF
@@ -50,12 +50,12 @@ jobs:
         run: |
           echo "APP_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
 
-      - name: Patch substitutions for build
+      - name: Create secrets.yaml for CI
         run: |
-          sed -i 's/api_key: ""/api_key: "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE="/' firmware/main.yaml
-          sed -i 's/ota_password: ""/ota_password: "dummy123"/' firmware/main.yaml
-          sed -i 's/wifi_ssid: "your_wifi_ssid"/wifi_ssid: "dummy"/' firmware/main.yaml
-          sed -i 's/wifi_password: "your_wifi_password"/wifi_password: "dummy123"/' firmware/main.yaml
+          cat <<EOF > firmware/secrets.yaml
+          wifi_ssid: 'dummy'
+          wifi_password: 'dummy123'
+          EOF
 
       # ── esphome/build-action does everything automatically: ──
       #    - compiles firmware
