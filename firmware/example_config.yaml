@@ -8,10 +8,7 @@ substitutions:
   # -- Device identity --
   device_name: "fila-scale"
   device_comment: "Filament Scale to communicate with Spoolman or Filaman"
-  namespace: "filascale"
-  esp_project: "filamenspoolscale"
-  esp_project_name: "Filament Spool Scale"
-  esp_project_version: '2026.03.001'
+  
 
   # -- WiFi --
   wifi_ssid: !secret wifi_ssid

@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     tags:
-      - 'v*'
+      - '[0-9][0-9][0-9][0-9].*'
   pull_request:
     branches: [ main ]
 
@@ -42,7 +42,7 @@ jobs:
   build-release:
     needs: validate
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/2')
     permissions:
       contents: write
 
@@ -52,9 +52,7 @@ jobs:
 
       - name: Extract version from tag
         run: |
-          VERSION="${{ github.ref_name }}"
-          VERSION="${VERSION#v}"
-          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "APP_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
 
       - name: Create secrets.yaml for build
         run: |
@@ -91,10 +89,17 @@ jobs:
       - name: Prepare release assets
         run: |
           BUILD_DIR="${{ steps.esphome-build.outputs.name }}"
+
+          # Copy and rename binary to fixed name
           cp "${BUILD_DIR}/"*.factory.bin ./filament-scale.bin
-          cp "${BUILD_DIR}/manifest.json" ./manifest-scale.json
+
+          # Fix binary path in manifest to match renamed file
+          jq '.builds[0].parts[0].path = "filament-scale.bin"'             "${BUILD_DIR}/manifest.json" > ./manifest-scale.json
+
           echo "Release assets prepared:"
           ls -la ./filament-scale.bin ./manifest-scale.json
+          echo "Manifest content:"
+          cat ./manifest-scale.json
 
       # ── Upload as GitHub Release assets ─────────────────────
       - name: Create Release and Upload Assets

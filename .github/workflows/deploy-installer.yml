@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'installer/**'
+      - 'site/**'
       - '.github/workflows/deploy-installer.yml'
 
   # Triggered automatically after ESPHome CI completes
@@ -31,7 +31,7 @@ jobs:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     # Only deploy when:
-    # - manual push to installer/ on main
+    # - manual push to site/ on main
     # - manual workflow_dispatch
     # - ESPHome CI completed successfully (tag builds only)
     if: >
@@ -69,10 +69,10 @@ jobs:
               '.assets[] | select(.name == "manifest-scale.json") | .browser_download_url')
 
             echo "Downloading binary: $BIN_URL"
-            curl -L -o installer/firmware-builds/filament-scale.bin "$BIN_URL"
+            curl -L -o site/firmware-builds/filament-scale.bin "$BIN_URL"
 
             echo "Downloading manifest: $MANIFEST_URL"
-            curl -L -o installer/firmware-builds/manifest-scale.json "$MANIFEST_URL"
+            curl -L -o site/firmware-builds/manifest-scale.json "$MANIFEST_URL"
 
             echo "✅ Downloaded assets for release $TAG"
           fi
@@ -83,7 +83,7 @@ jobs:
       - name: Upload installer as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: installer/
+          path: site/
 
       - name: Deploy to GitHub Pages
         id: deployment

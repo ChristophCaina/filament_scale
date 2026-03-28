@@ -8,6 +8,19 @@ esp32:
   framework:
     type: esp-idf
 
+esphome:
+  name: ${device_name}
+  friendly_name: ${esp_project_name}
+  project:
+    name: "${namespace}.${esp_project}"
+    version: ${esp_project_version}
+
+substitutions:
+  esp_project_version: '2026.03.1'
+  esp_project: "filamentspoolscale"
+  esp_project_name: "Filament Spool Scale"
+  namespace: "filascale"
+
 wifi:
   ssid: ${wifi_ssid}
   password: ${wifi_password}
