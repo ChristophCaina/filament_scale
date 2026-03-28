@@ -3,6 +3,17 @@
 # Base configuration: WiFi, API, OTA, Logger, LED, Buzzer,
 # Project info & dashboard_import
 # ============================================================
+esp32:
+  board: esp32dev
+  platform: esp-idf
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${esp_project_name}
+  project:
+    name: filascale.filamentspoolscale
+    comment: "Filament Spool Scale"
+    version: 2026.3.1  
 
 dashboard_import:
   package_import_url: github://ChristophCaina/filament_scale/firmware/main.yaml@main
