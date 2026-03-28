@@ -5,7 +5,8 @@
 # ============================================================
 esp32:
   board: esp32dev
-  platform: esp-idf
+  framework:
+    type: esp-idf
 
 esphome:
   name: ${device_name}
