@@ -22,7 +22,6 @@ permissions:
   pages: write
   id-token: write
 
-# Only one deployment at a time
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -31,13 +30,15 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    # Run on manual/push triggers, OR when ESPHome CI completed successfully on a tag
+    # Only deploy when:
+    # - manual push to installer/ on main
+    # - manual workflow_dispatch
+    # - ESPHome CI completed successfully (tag builds only)
     if: >
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'workflow_run' &&
-       github.event.workflow_run.conclusion == 'success' &&
-       startsWith(github.event.workflow_run.head_branch, 'v'))
+       github.event.workflow_run.conclusion == 'success')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -49,10 +50,9 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      # ── Fetch latest release assets (.bin + manifest) ────────
-      - name: Download firmware assets from latest release
+      # ── Fetch latest release assets ──────────────────────────
+      - name: Download firmware from latest release
         run: |
-          # Get the latest release tag
           RELEASE=$(curl -s \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/releases/latest")
@@ -61,28 +61,26 @@ jobs:
           echo "Latest release: $TAG"
 
           if [ "$TAG" = "null" ] || [ -z "$TAG" ]; then
-            echo "No release found — skipping firmware download."
-            echo "FIRMWARE_AVAILABLE=false" >> $GITHUB_ENV
+            echo "⚠️ No release found — deploying installer without firmware."
           else
-            echo "FIRMWARE_AVAILABLE=true" >> $GITHUB_ENV
+            BIN_URL=$(echo "$RELEASE" | jq -r \
+              '.assets[] | select(.name == "filament-scale.bin") | .browser_download_url')
+            MANIFEST_URL=$(echo "$RELEASE" | jq -r \
+              '.assets[] | select(.name == "manifest-scale.json") | .browser_download_url')
 
-            # Download filament-scale.bin
-            BIN_URL=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "filament-scale.bin") | .browser_download_url')
-            echo "Downloading binary from: $BIN_URL"
+            echo "Downloading binary: $BIN_URL"
             curl -L -o installer/firmware-builds/filament-scale.bin "$BIN_URL"
 
-            # Download manifest-scale.json (with updated version + MD5)
-            MANIFEST_URL=$(echo "$RELEASE" | jq -r '.assets[] | select(.name == "manifest-scale.json") | .browser_download_url')
-            echo "Downloading manifest from: $MANIFEST_URL"
+            echo "Downloading manifest: $MANIFEST_URL"
             curl -L -o installer/firmware-builds/manifest-scale.json "$MANIFEST_URL"
 
-            echo "Downloaded assets for release $TAG"
+            echo "✅ Downloaded assets for release $TAG"
           fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload installer folder as Pages artifact
+      - name: Upload installer as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: installer/
