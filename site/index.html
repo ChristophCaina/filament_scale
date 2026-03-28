@@ -403,7 +403,7 @@
   fetch('firmware-builds/manifest-scale.json')
     .then(r => r.json())
     .then(data => {
-      document.getElementById('fw-version').textContent = + data.version;
+      document.getElementById('fw-version').textContent = data.version;
     })
     .catch(() => {
       document.getElementById('fw-version').textContent = '';
