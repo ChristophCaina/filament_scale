@@ -68,6 +68,7 @@ jobs:
             MANIFEST_URL=$(echo "$RELEASE" | jq -r \
               '.assets[] | select(.name == "manifest-scale.json") | .browser_download_url')
 
+            mkdir -p site/firmware-builds
             echo "Downloading binary: $BIN_URL"
             curl -L -o site/firmware-builds/filament-scale.bin "$BIN_URL"
 
