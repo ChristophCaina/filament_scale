@@ -113,7 +113,8 @@ script:
             ESP_LOGW("sync", "No backend configured, skipping sync");
             return;
           }
-      - http_request.patch:
+      - http_request.send:
+          method: PATCH
           url: !lambda |-
             return id(sync_backend_url) +
                    std::to_string(id(spoolman_spool_id));
