@@ -26,7 +26,9 @@ esphome:
           if (!sub.empty()) {
             float val = atof(sub.c_str());
             if (val > 0) {
-              id(calibration_factor).set(val);
+              auto call = id(calibration_factor).make_call();
+              call.set_value(val);
+              call.perform();
               ESP_LOGI("scale", "Calibration factor from substitution: %.1f", val);
             }
           }

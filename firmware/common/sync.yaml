@@ -77,11 +77,15 @@ esphome:
           std::string sub_filaman = "${filaman_ip}";
           std::string sub_spoolman = "${spoolman_ip}";
           if (!sub_filaman.empty()) {
-            id(text_filaman_ip).set(sub_filaman);
+            auto call = id(text_filaman_ip).make_call();
+            call.set_value(sub_filaman);
+            call.perform();
             ESP_LOGI("sync", "FilaMan IP from substitution: %s", sub_filaman.c_str());
           }
           if (!sub_spoolman.empty()) {
-            id(text_spoolman_ip).set(sub_spoolman);
+            auto call = id(text_spoolman_ip).make_call();
+            call.set_value(sub_spoolman);
+            call.perform();
             ESP_LOGI("sync", "Spoolman IP from substitution: %s", sub_spoolman.c_str());
           }
       - script.execute: script_detect_backend
