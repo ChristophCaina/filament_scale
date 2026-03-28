@@ -8,13 +8,11 @@ on:
       - 'installer/**'
       - '.github/workflows/deploy-installer.yml'
 
-  # Triggered automatically after a successful build-release
+  # Triggered automatically after ESPHome CI completes
   workflow_run:
     workflows: ["ESPHome CI"]
     types:
       - completed
-    branches-ignore:
-      - '**'   # only tag-triggered runs matter; filter below via condition
 
   # Allow manual trigger from the Actions tab
   workflow_dispatch:
