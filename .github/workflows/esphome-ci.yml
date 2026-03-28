@@ -87,11 +87,15 @@ jobs:
       - name: Find and Prepare Binary
         shell: bash
         run: |
-          # firmware-factory.bin = merged binary (Bootloader + Partitionstabelle + App)
+          # ESPHome with esp-idf generates firmware.factory.bin (dot, not dash!)
+          # This is the merged binary (Bootloader + Partitionstabelle + App)
           # Required for initial flashing via Web Installer (offset 0x0)
-          REAL_BIN=$(find firmware/.esphome/build -name "firmware-factory.bin" | head -n 1)
+          echo "Available binaries:"
+          find firmware/.esphome/build -name "*.bin" | sort
+
+          REAL_BIN=$(find firmware/.esphome/build -name "firmware.factory.bin" | head -n 1)
           if [ -z "$REAL_BIN" ]; then
-            echo "firmware-factory.bin not found, falling back to firmware.bin"
+            echo "firmware.factory.bin not found, falling back to firmware.bin"
             REAL_BIN=$(find firmware/.esphome/build -name "firmware.bin" | head -n 1)
           fi
           if [ -z "$REAL_BIN" ]; then
