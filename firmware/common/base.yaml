@@ -16,7 +16,7 @@ esphome:
     version: ${esp_project_version}
 
 substitutions:
-  esp_project_version: '2026.03.1'
+  esp_project_version: '2026.3.1'
   esp_project: "filamentspoolscale"
   esp_project_name: "Filament Spool Scale"
   namespace: "filascale"
