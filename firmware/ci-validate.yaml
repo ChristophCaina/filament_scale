@@ -68,6 +68,7 @@ api:
 
 ota:
   - platform: esphome
+  - platform: http_request
 
 http_request:
   verify_ssl: false
