@@ -2,21 +2,17 @@
 # sync.yaml
 # Unified sync: FilaMan (priority) or Spoolman (fallback)
 #
-# FilaMan exposes a fully Spoolman-compatible API under:
-#   http://<filaman_ip>/spoolman/api/v1/
+# IPs can be configured two ways:
+#   Option 1 — via substitution in main.yaml (default/initial value)
+#   Option 2 — via text entities in Home Assistant UI
+#              (stored on device, survives reboots)
 #
 # Priority logic:
-#   1. FilaMan configured (filaman_ip != "") → use FilaMan API
+#   1. FilaMan configured → use FilaMan Spoolman-compatible API
 #      FilaMan handles internal Spoolman sync automatically.
 #   2. FilaMan not configured or unreachable → use Spoolman directly
-#
-# Both paths use the identical Spoolman API call — only the
-# base URL differs. No duplicate logic needed.
+#   3. Neither configured → sync disabled, weight still shown in HA
 # ============================================================
-
-http_request:
-  useragent: "ESPHome Filament Scale"
-  timeout: 5s
 
 globals:
   - id: spoolman_spool_id
@@ -24,7 +20,6 @@ globals:
     restore_value: true
     initial_value: "1"
 
-  # Tracks which backend is active (set on boot by script_detect_backend)
   - id: sync_use_filaman
     type: bool
     restore_value: false
@@ -35,89 +30,122 @@ globals:
     restore_value: false
     initial_value: '""'
 
-# -- Detect backend on boot --
-#esphome:
-#  on_boot:
-#    priority: -100
-#    then:
-#      - script.execute: script_detect_backend
+text:
+  # -- Spoolman IP:port --
+  # Initial value from substitution, overridable via HA
+  - platform: template
+    id: text_spoolman_ip
+    name: "${device_name} Spoolman IP"
+    icon: mdi:server
+    entity_category: config
+    restore_value: true
+    initial_value: "${spoolman_ip}"
+    optimistic: true
+    on_value:
+      then:
+        - logger.log:
+            format: "Spoolman IP updated: %s"
+            args: ["x.c_str()"]
+        - script.execute: script_detect_backend
+
+  # -- FilaMan IP:port --
+  # Initial value from substitution, overridable via HA
+  - platform: template
+    id: text_filaman_ip
+    name: "${device_name} FilaMan IP"
+    icon: mdi:server-network
+    entity_category: config
+    restore_value: true
+    initial_value: "${filaman_ip}"
+    optimistic: true
+    on_value:
+      then:
+        - logger.log:
+            format: "FilaMan IP updated: %s"
+            args: ["x.c_str()"]
+        - script.execute: script_detect_backend
+
+esphome:
+  on_boot:
+    priority: -50
+    then:
+      # If substitution is set → override HA entity (Power User)
+      # If substitution is empty → keep HA entity value (Normal User)
+      - lambda: |-
+          std::string sub_filaman = "${filaman_ip}";
+          std::string sub_spoolman = "${spoolman_ip}";
+          if (!sub_filaman.empty()) {
+            id(text_filaman_ip).set(sub_filaman);
+            ESP_LOGI("sync", "FilaMan IP from substitution: %s", sub_filaman.c_str());
+          }
+          if (!sub_spoolman.empty()) {
+            id(text_spoolman_ip).set(sub_spoolman);
+            ESP_LOGI("sync", "Spoolman IP from substitution: %s", sub_spoolman.c_str());
+          }
+      - script.execute: script_detect_backend
 
 script:
-  # ── Step 1: Detect which backend to use ──────────────────
-#  - id: script_detect_backend
-#    mode: single
-#    then:
-#      - if:
-#          condition:
-#            lambda: |-
-#              std::string ip = "${filaman_ip}";
-#              return !ip.empty() && ip != "0.0.0.0";
-#          then:
-#            # FilaMan configured → probe health endpoint
-#            - http_request.get:
-#                url: "http://${filaman_ip}/spoolman/api/v1/health"
-#                on_response:
-#                  then:
-#                    - lambda: |-
-#                        if (status_code == 200) {
-#                          id(sync_use_filaman) = true;
-#                          id(sync_backend_url) =
-#                            "http://${filaman_ip}/spoolman/api/v1/spool/";
-#                          ESP_LOGI("sync", "Backend: FilaMan (%s)",
-#                            "${filaman_ip}");
-#                        } else {
-#                          id(sync_use_filaman) = false;
-#                          id(sync_backend_url) =
-#                            "http://${spoolman_ip}/api/v1/spool/";
-#                          ESP_LOGW("sync",
-#                            "FilaMan probe failed (%d), fallback: Spoolman",
-#                            status_code);
-#                        }
-#          else:
-#            # FilaMan not configured → use Spoolman directly
-#            - lambda: |-
-#                id(sync_use_filaman) = false;
-#                id(sync_backend_url) =
-#                  "http://${spoolman_ip}/api/v1/spool/";
-#                ESP_LOGI("sync", "Backend: Spoolman (%s)", "${spoolman_ip}");
+  # ── Detect which backend to use ──────────────────────────
+  - id: script_detect_backend
+    mode: restart
+    then:
+      - lambda: |-
+          std::string filaman = id(text_filaman_ip).state;
+          std::string spoolman = id(text_spoolman_ip).state;
 
-  # ── Step 2: Push weight to active backend ─────────────────
-#  - id: script_push_weight
-#    mode: single
-#    then:
-#      - http_request.patch:
-#          url: !lambda |-
-#            return id(sync_backend_url) +
-#                   std::to_string(id(spoolman_spool_id));
-#          headers:
-#            Content-Type: application/json
-#          body: !lambda |-
-#            char body[64];
-#            snprintf(body, sizeof(body),
-#              "{\"remaining_weight\": %.1f}",
-#              id(scale_weight).state);
-#            return std::string(body);
-#          on_response:
-#            then:
-#              - lambda: |-
-#                  if (status_code == 200) {
-#                    ESP_LOGI("sync", "Sync OK → spool #%d = %.1f g",
-#                      id(spoolman_spool_id), id(scale_weight).state);
-#                    id(beep_confirm).execute();
-#                  } else if (status_code == 404) {
-#                    ESP_LOGW("sync", "Spool #%d not found (404)",
-#                      id(spoolman_spool_id));
-#                    id(beep_error).execute();
-#                  } else {
-#                    ESP_LOGW("sync", "Sync failed: HTTP %d", status_code);
-#                    id(beep_error).execute();
-#                  }
+          if (!filaman.empty()) {
+            id(sync_backend_url) = "http://" + filaman + "/spoolman/api/v1/spool/";
+            ESP_LOGI("sync", "Backend: FilaMan (%s)", filaman.c_str());
+          } else if (!spoolman.empty()) {
+            id(sync_backend_url) = "http://" + spoolman + "/api/v1/spool/";
+            ESP_LOGI("sync", "Backend: Spoolman (%s)", spoolman.c_str());
+          } else {
+            id(sync_backend_url) = "";
+            ESP_LOGI("sync", "No backend configured — sync disabled");
+          }
+
+  # ── Push weight to active backend ─────────────────────────
+  - id: script_push_weight
+    mode: single
+    then:
+      - lambda: |-
+          if (id(sync_backend_url).empty()) {
+            ESP_LOGW("sync", "No backend configured, skipping sync");
+            return;
+          }
+      - http_request.patch:
+          url: !lambda |-
+            return id(sync_backend_url) +
+                   std::to_string(id(spoolman_spool_id));
+          headers:
+            Content-Type: application/json
+          body: !lambda |-
+            char body[64];
+            snprintf(body, sizeof(body),
+              "{\"remaining_weight\": %.1f}",
+              id(scale_weight).state);
+            return std::string(body);
+          on_response:
+            then:
+              - lambda: |-
+                  if (response->status_code == 200) {
+                    ESP_LOGI("sync", "Sync OK → spool #%d = %.1f g",
+                      id(spoolman_spool_id), id(scale_weight).state);
+                    id(beep_confirm).execute();
+                  } else if (response->status_code == 404) {
+                    ESP_LOGW("sync", "Spool #%d not found (404)",
+                      id(spoolman_spool_id));
+                    id(beep_error).execute();
+                  } else {
+                    ESP_LOGW("sync", "Sync failed: HTTP %d", response->status_code);
+                    id(beep_error).execute();
+                  }
 
 button:
   - platform: template
     id: btn_sync
     name: "${device_name} Sync"
     icon: mdi:cloud-upload
-#    on_press:
-#      then:
-#        - script.execute: script_push_weight
+    on_press:
+      then:
+        - script.execute: script_push_weight
