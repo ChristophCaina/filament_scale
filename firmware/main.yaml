@@ -66,7 +66,7 @@ esp32:
 # -- WiFi: no credentials — configured via Improv or Captive Portal --
 wifi:
   ap:
-    ssid: "${name} Fallback"
+    ssid: "${device_name} Fallback"
     password: "filament123"
  
 # Allow provisioning WiFi via serial (used by ESP Web Tools after flash)
@@ -95,7 +95,7 @@ http_request:
  
 update:
   - platform: http_request
-    name: "${name} Firmware Update"
+    name: "${device_name} Firmware Update"
     source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
 
 packages:
