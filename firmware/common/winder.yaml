@@ -12,7 +12,7 @@ globals:
 binary_sensor:
   - platform: gpio
     id: winder_addon_pin
-    name: "${device_name} Winder Add-on"
+    name: "Winder Add-on"
     pin:
       number: ${pin_addon_detect}
       mode:

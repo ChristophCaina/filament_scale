@@ -6,7 +6,7 @@
 sensor:
   - platform: rotary_encoder
     id: encoder
-    name: "${device_name} Encoder"
+    name: "Encoder"
     internal: true
     pin_a:
       number: ${pin_encoder_a}
@@ -37,7 +37,7 @@ sensor:
 binary_sensor:
   - platform: gpio
     id: encoder_btn
-    name: "${device_name} Encoder Button"
+    name: "Encoder Button"
     internal: true
     pin:
       number: ${pin_encoder_btn}

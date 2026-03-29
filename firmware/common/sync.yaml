@@ -35,7 +35,7 @@ text:
   # Initial value from substitution, overridable via HA
   - platform: template
     id: text_spoolman_ip
-    name: "${device_name} Spoolman IP"
+    name: "Spoolman IP"
     icon: mdi:server
     entity_category: config
     mode: text
@@ -53,7 +53,7 @@ text:
   # Initial value from substitution, overridable via HA
   - platform: template
     id: text_filaman_ip
-    name: "${device_name} FilaMan IP"
+    name: "FilaMan IP"
     icon: mdi:server-network
     entity_category: config
     mode: text
@@ -155,7 +155,7 @@ script:
 button:
   - platform: template
     id: btn_sync
-    name: "${device_name} Sync"
+    name: "Sync"
     icon: mdi:cloud-upload
     on_press:
       then:

@@ -87,7 +87,7 @@ pn532_i2c:
 text_sensor:
   - platform: template
     id: nfc_tag_id
-    name: "${device_name} NFC Tag ID"
+    name: "NFC Tag ID"
     icon: mdi:nfc
     entity_category: diagnostic
     lambda: |-

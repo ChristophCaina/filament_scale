@@ -23,7 +23,7 @@ sensor:
   - platform: adc
     id: poti_raw
     pin: ${pin_speed_poti}
-    name: "${device_name} Winder Speed Raw"
+    name: "Winder Speed Raw"
     internal: true
     attenuation: 11db
     update_interval: 200ms
@@ -35,7 +35,7 @@ sensor:
 
   - platform: template
     id: winder_speed_pct
-    name: "${device_name} Winder Speed"
+    name: "Winder Speed"
     unit_of_measurement: "%"
     accuracy_decimals: 0
     icon: mdi:speedometer
@@ -57,7 +57,7 @@ sensor:
 button:
   - platform: template
     id: btn_winder_toggle
-    name: "${device_name} Winder Toggle"
+    name: "Winder Toggle"
     icon: mdi:rotate-3d-variant
     on_press:
       then:

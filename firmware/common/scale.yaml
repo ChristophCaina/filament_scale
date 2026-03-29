@@ -55,7 +55,7 @@ number:
   # Can be overridden at runtime via Home Assistant UI
   - platform: template
     id: calibration_factor
-    name: "${device_name} Calibration Factor"
+    name: "Calibration Factor"
     icon: mdi:tune
     entity_category: config
     min_value: 1
@@ -73,7 +73,7 @@ number:
   # -- Empty spool weight --
   - platform: template
     id: num_spool_empty_weight
-    name: "${device_name} Empty Spool Weight"
+    name: "Empty Spool Weight"
     icon: mdi:weight-gram
     unit_of_measurement: "g"
     entity_category: config
@@ -92,7 +92,7 @@ number:
   # -- Total filament weight --
   - platform: template
     id: num_spool_total_filament
-    name: "${device_name} Total Filament Weight"
+    name: "Total Filament Weight"
     icon: mdi:weight-gram
     unit_of_measurement: "g"
     entity_category: config
@@ -112,7 +112,7 @@ sensor:
   # -- Raw HX711 value (visible for calibration) --
   - platform: hx711
     id: scale_raw
-    name: "${device_name} Scale Raw"
+    name: "Scale Raw"
     internal: false
     icon: mdi:numeric
     entity_category: diagnostic
@@ -128,7 +128,7 @@ sensor:
   # -- Calibrated weight in grams --
   - platform: template
     id: scale_weight
-    name: "${device_name} Weight"
+    name: "Weight"
     unit_of_measurement: "g"
     accuracy_decimals: 1
     icon: mdi:scale-balance
@@ -149,7 +149,7 @@ sensor:
   # -- Filament remaining in % --
   - platform: template
     id: filament_remaining_pct
-    name: "${device_name} Filament Remaining"
+    name: "Filament Remaining"
     unit_of_measurement: "%"
     accuracy_decimals: 0
     icon: mdi:percent
@@ -167,7 +167,7 @@ button:
   # -- Tare / Zero the scale --
   - platform: template
     id: btn_tare
-    name: "${device_name} Tare Scale"
+    name: "Tare Scale"
     icon: mdi:scale-balance
     entity_category: config
     on_press:
