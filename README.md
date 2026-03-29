@@ -1,4 +1,4 @@
-# ⚖️ ESPHome Filament Spool Scale & Winder
+# ⚖ ESPHome Filament Spool Scale & Winder
 
 > 🇩🇪 [Deutsche Version weiter unten](#-esphome-filament-waage---wickler)
 
@@ -104,7 +104,7 @@ Hardware design files (3D prints, PCB layouts) may be freely used, shared and ad
  
 ---
 
-# ⚖️ ESPHome Filament-Waage & -Wickler
+# ⚖ ESPHome Filament-Waage & -Wickler
 
 Dieses Projekt ist eine intelligente Filamentwaage auf Basis eines ESP32. Es bietet präzise Gewichtsmessung für 3D-Druck-Spulen, eine integrierte Spulendatenbank und die Steuerung eines optionalen Wickler-Add-ons. 
 Ein Ziel für dieses Projekt war zudem die Verwertung einiger Bauteile eines alten, ausgedienten Ender3 Druckers.  
