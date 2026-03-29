@@ -1,4 +1,4 @@
-# 🖥️ Web Interface
+# 📊 Web Interface
 
 > 🇩🇪 [Deutsche Version weiter unten](#-web-interface-1)
 
@@ -101,7 +101,7 @@ The web interface also provides a manual OTA update option at the bottom of the 
 ---
 ---
 
-# 🖥️ Web-Interface
+# 📊 Web-Interface
 
 Das Filament Scale verfügt über ein eingebautes Web-Interface, das direkt über jeden Browser im lokalen Netzwerk erreichbar ist — ohne App, ohne Home Assistant.
 
