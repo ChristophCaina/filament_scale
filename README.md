@@ -1,6 +1,6 @@
 # ⚖️ ESPHome Filament Spool Scale & Winder
 
-> 🇩🇪 [Deutsche Version weiter unten](#-esphome-filament-waage--wickler)
+> 🇩🇪 [Deutsche Version weiter unten](#-esphome-filament-waage---wickler)
 
 ---
 
