@@ -8,12 +8,26 @@
 #   - Empty spool weight
 #   - Total filament weight
 #   - Material & color (optional)
+# Tag format (NDEF Text Record):
+#   spool_id=42
+#
+# Logic:
+#   Tag detected
+#     ├── Empty / no NDEF → beep_short → log "new tag"
+#     └── Has NDEF data
+#           ├── Contains "spool_id=" → set spoolman_spool_id → sync
+#           └── Unknown format → log content, beep_short
 #
 # Hardware: PN532 NFC module via I2C
 #   SDA → ${pin_i2c_sda}
 #   SCL → ${pin_i2c_scl}
 # ============================================================
 
+globals:
+  - id: nfc_last_tag_id
+    type: std::string
+    restore_value: false
+    initial_value: '""'
 i2c:
   sda: ${pin_i2c_sda}
   scl: ${pin_i2c_scl}
@@ -24,18 +38,58 @@ pn532_i2c:
   on_tag:
     then:
       - lambda: |-
-          ESP_LOGI("nfc", "Tag detected: %s", x.c_str());
-          // TODO: parse tag payload
-          // Expected format (NDEF text record):
-          //   spool_id=42;empty=200;total=1000
-          //
-          // Example parsing:
-          // if (x.find("spool_id=") != std::string::npos) {
-          //   int id = atoi(x.substr(x.find("spool_id=") + 9).c_str());
-          //   id(spoolman_spool_id) = id;
-          // }
-      - script.execute: beep_confirm
+          std::string tag_id = x.c_str();
+          id(nfc_last_tag_id) = tag_id;
+          ESP_LOGI("nfc", "Tag detected: %s", tag_id.c_str());
 
+          // Check for NDEF records
+          if (tag.has_ndef_message()) {
+            auto msg = tag.get_ndef_message();
+            auto records = msg->get_records();
+            bool found = false;
+
+            for (auto &record : records) {
+              std::string payload = record->get_payload();
+              ESP_LOGI("nfc", "NDEF payload: %s", payload.c_str());
+
+              // Look for spool_id=XX
+              auto pos = payload.find("spool_id=");
+              if (pos != std::string::npos) {
+                int spool_id = atoi(payload.substr(pos + 9).c_str());
+                if (spool_id > 0) {
+                  id(spoolman_spool_id) = spool_id;
+                  ESP_LOGI("nfc", "Spool ID set to: %d", spool_id);
+                  found = true;
+                }
+              }
+            }
+
+            if (found) {
+              // Known tag → confirm beep + trigger sync
+              id(beep_confirm).execute();
+              id(script_push_weight).execute();
+            } else {
+              // Has NDEF but unknown format
+              ESP_LOGW("nfc", "Unknown NDEF format on tag");
+              id(beep_short).execute();
+            }
+          } else {
+            // Empty tag — ready to be written
+            ESP_LOGI("nfc", "Empty tag detected — ready to write");
+            id(beep_short).execute();
+          }
   on_tag_removed:
     then:
-      - logger.log: "NFC tag removed."
+      - lambda: |-
+          ESP_LOGI("nfc", "Tag removed: %s", id(nfc_last_tag_id).c_str());
+          id(nfc_last_tag_id) = "";
+
+text_sensor:
+  - platform: template
+    id: nfc_tag_id
+    name: "${device_name} NFC Tag ID"
+    icon: mdi:nfc
+    entity_category: diagnostic
+    lambda: |-
+      return id(nfc_last_tag_id);
+    update_interval: 1s
