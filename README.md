@@ -83,9 +83,8 @@ FilaMan can also be run as a **Home Assistant Add-on** — see [ha-filaman-syste
 * [API Documentation](docs/api.md)
 
 ---
-
  
-## 📄 License / Lizenz
+## 📄 License
  
 This project uses different licenses for different components:
  
@@ -185,7 +184,8 @@ FilaMan kann auch als **Home Assistant Add-on** betrieben werden – siehe [ha-f
 * [API Dokumentation](docs/api.md#-api-dokumentation)
 
 ---
- 
+## 📄 Lizenz
+
 Dieses Projekt verwendet verschiedene Lizenzen für verschiedene Komponenten:
  
 | Komponente | Lizenz |
