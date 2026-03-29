@@ -81,7 +81,28 @@ FilaMan can also be run as a **Home Assistant Add-on** — see [ha-filaman-syste
 * [Hardware](docs/hardware.md)
 * [Calibration](docs/calibration.md)
 * [API Documentation](docs/api.md)
+
 ---
+
+ 
+## 📄 License / Lizenz
+ 
+This project uses different licenses for different components:
+ 
+| Component | License |
+| :--- | :--- |
+| **Firmware & Software** (YAML, Scripts, Workflows) | [MIT License](LICENSE) |
+| **Hardware** (3D Print Files, PCB Layouts, Schematics) | [CC BY-NC-SA 4.0](LICENSE-HARDWARE) |
+| **Documentation** | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+ 
+### MIT License (Software)
+The firmware and all software components are free to use, modify and distribute — including for commercial purposes — as long as the copyright notice is retained.
+ 
+### CC BY-NC-SA 4.0 (Hardware)
+Hardware design files (3D prints, PCB layouts) may be freely used, shared and adapted for **non-commercial purposes**, as long as appropriate credit is given and derivatives are shared under the same license.
+ 
+> ℹ️ Affiliate links in the documentation do not constitute commercial use of the hardware designs.
+ 
 ---
 
 # ⚖️ ESPHome Filament-Waage & -Wickler
@@ -162,3 +183,22 @@ FilaMan kann auch als **Home Assistant Add-on** betrieben werden – siehe [ha-f
 * [Hardware](docs/hardware.md#-hardware-dokumentation)
 * [Kalibrierung](docs/calibration.md#voraussetzungen)
 * [API Dokumentation](docs/api.md#-api-dokumentation)
+
+---
+ 
+Dieses Projekt verwendet verschiedene Lizenzen für verschiedene Komponenten:
+ 
+| Komponente | Lizenz |
+| :--- | :--- |
+| **Firmware & Software** (YAML, Scripts, Workflows) | [MIT Lizenz](LICENSE) |
+| **Hardware** (3D-Druck-Dateien, PCB-Layouts, Schaltpläne) | [CC BY-NC-SA 4.0](LICENSE-HARDWARE) |
+| **Dokumentation** | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) |
+ 
+### MIT Lizenz (Software)
+Firmware und alle Software-Komponenten dürfen frei verwendet, verändert und weitergegeben werden — auch kommerziell — solange der Copyright-Hinweis erhalten bleibt.
+ 
+### CC BY-NC-SA 4.0 (Hardware)
+Hardware-Designdateien (3D-Drucke, PCB-Layouts) dürfen für **nicht-kommerzielle Zwecke** frei genutzt, geteilt und angepasst werden, sofern eine angemessene Namensnennung erfolgt und Ableitungen unter der gleichen Lizenz veröffentlicht werden.
+ 
+> ℹ️ Affiliate-Links in der Dokumentation stellen keine kommerzielle Nutzung der Hardware-Designs dar.
+ 
