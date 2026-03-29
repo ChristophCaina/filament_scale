@@ -82,6 +82,18 @@ FilaMan can also be run as a **Home Assistant Add-on** — see [ha-filaman-syste
 * [Calibration](docs/calibration.md)
 * [API Documentation](docs/api.md)
 
+<!--
+---
+## 🌱 Supported Filament Suppliers
+
+### Recycling Fabrik
+Recycled filament from collected 3D printing waste.
+Compatible with FilaMan NFC tags (coming soon).
+
+<!-- [Shop ↗](https://recyclingfabrik.com) | [Collab Program ↗](https://recyclingfabrik.com/pages/collab)
+
+> ℹ️ Affiliate links help support this project at no extra cost to you.
+-->
 ---
  
 ## 📄 License
@@ -183,6 +195,18 @@ FilaMan kann auch als **Home Assistant Add-on** betrieben werden – siehe [ha-f
 * [Kalibrierung](docs/calibration.md#voraussetzungen)
 * [API Dokumentation](docs/api.md#-api-dokumentation)
 
+<!--
+---
+## 🌱 Unterstützte Filament Hersteller
+
+### Recycling Fabrik
+Nachhaltiges Filament aus 3D-Druck-Recycling.
+Kompatibel mit FilaMan NFC-Tags (demnächst verfügbar).
+
+[Shop ↗](https://recyclingfabrik.com) | [Collab Program ↗](https://recyclingfabrik.com/pages/collab)
+
+> ℹ️ Affiliate links help support this project at no extra cost to you.
+-->
 ---
 ## 📄 Lizenz
 
