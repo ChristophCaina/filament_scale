@@ -120,16 +120,16 @@ Both **A4988** and **TMC2209** (recommended) are supported. The STEP/DIR interfa
 | **A4988** | Cheap, widely available | Loud, minimal protection |
 
 ```
-ESP32             A4988          NEMA17
-─────             ─────          ──────
+ESP32             Stepper-Driver          NEMA17
+─────             ─────                   ──────
 GPIO25 ────────►  STEP
 GPIO26 ────────►  DIR
 3.3 V  ────────►  VDD (logic)
 GND    ────────►  GND (logic)
-                  VMOT ◄──── 12 V PSU (+)
-                  GND  ◄──── 12 V PSU (-)
-                  1A/1B ────► Coil A
-                  2A/2B ────► Coil B
+                  VMOT         ◄────      12 V PSU (+)
+                  GND          ◄────      12 V PSU (-)
+                  1A/1B        ────►      Coil A
+                  2A/2B        ────►      Coil B
 ```
 
  ⚠️ Always set the current limit on the driver before connecting the stepper motor. For TMC2209, adjust the Vref potentiometer. For A4988, use a multimeter to set Vref according to your motor's rated current.
@@ -345,16 +345,16 @@ Sowohl **A4988** als auch **TMC2209** (empfohlen) werden unterstützt. Das STEP/
 | **A4988** | Günstig, überall verfügbar | Laut, minimaler Schutz |
 
 ```
-ESP32             A4988          NEMA17
-─────             ─────          ──────
+ESP32             Stepper-Treiber          NEMA17
+─────             ─────                    ──────
 GPIO25 ────────►  STEP
 GPIO26 ────────►  DIR
 3,3 V  ────────►  VDD (Logik)
 GND    ────────►  GND (Logik)
-                  VMOT ◄──── 12-V-Netzteil (+)
-                  GND  ◄──── 12-V-Netzteil (-)
-                  1A/1B ────► Spule A
-                  2A/2B ────► Spule B
+                  VMOT       ◄────        12-V-Netzteil (+)
+                  GND        ◄────        12-V-Netzteil (-)
+                  1A/1B      ────►        Spule A
+                  2A/2B      ────►        Spule B
 ```
 
 > ⚠️ Den Strombegrenzungspoti vor dem Anschluss des Schrittmotors einstellen. Beim TMC2209 den Vref-Poti entsprechend dem Nennstrom des Motors einstellen. Beim A4988 den Vref-Wert per Multimeter messen.
