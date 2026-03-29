@@ -101,7 +101,14 @@ BLA  ──────────►  3.3 V  (backlight anode)
 BLK  ──────────►  GND    (backlight cathode)
 ```
 
-### Stepper Motor → A4988 → ESP32
+### Stepper Motor → Driver → ESP32
+
+Both **A4988** and **TMC2209** (recommended) are supported. The STEP/DIR interface is identical for both — no firmware changes needed.
+
+| Driver | Pros | Cons |
+| :--- | :--- | :--- |
+| **TMC2209** *(recommended)* | Very quiet (StealthChop), thermal protection, overcurrent protection | ~3–5€ |
+| **A4988** | Cheap, widely available | Loud, minimal protection |
 
 ```
 ESP32             A4988          NEMA17
@@ -116,21 +123,44 @@ GND    ────────►  GND (logic)
                   2A/2B ────► Coil B
 ```
 
-> ⚠️ Set the A4988 current limit before first use to avoid overheating the stepper motor.
-
+ ⚠️ Always set the current limit on the driver before connecting the stepper motor. For TMC2209, adjust the Vref potentiometer. For A4988, use a multimeter to set Vref according to your motor's rated current.
 ---
 
 ## Power Supply
 
-The ESP32 and logic components run at **3.3 V** (regulated on-board). The stepper motor requires a separate **12 V supply** connected directly to the stepper driver (VMOT/GND). Do not power the stepper from the ESP32's 3.3 V or 5 V rails.
+This project uses a **single 12 V input** for all components. A step-down module converts 12 V to 5 V for the ESP32, display, and sensors. The ESP32 regulates 5 V down to 3.3 V internally.
 
-> *Note:* This section might change - goal is one 12V power-supply for the whole hardware
+> ⚠️ The Ender 3 display cannot be powered from the ESP32's USB port — it requires a dedicated 5 V supply with sufficient current. Always use the 12 V input with a step-down module.
 
-| Rail | Consumers | Recommended Supply |
+```
+12V PSU (Barrel Jack 5.5/2.1mm)
+    ├── Step-Down (12V → 5V) ──► ESP32 VIN
+    │                        ──► ST7920 Display VCC
+    │                        ──► HX711 VCC
+    │                        ──► PN532 NFC VCC
+    │                        ──► Rotary Encoder VCC
+    │                        ──► Buzzer
+    │   (ESP32 regulates 5V → 3.3V internally)
+    └── Direct 12V ──► Stepper Driver VMOT (Winder Add-on only)
+```
+
+| Rail | Consumers | Source |
 | :--- | :--- | :--- |
-| 5 V (via USB) | ESP32, HX711, Display, Encoder, Buzzer | USB charger ≥ 1 A |
-| 12 V | Stepper motor (winder add-on only) | 12 V / 2 A PSU |
+| **12 V** | Stepper motor (optional) | 12 V PSU via barrel jack |
+| **5 V** | ESP32 (VIN), Display, HX711, PN532, Encoder, Buzzer | Step-down module (e.g. MP1584) |
+| **3.3 V** | ESP32 internals, sensors | ESP32 on-board regulator |
 
+### Recommended Step-Down Module
+
+Any adjustable step-down module works. Common options:
+
+| Module | Input | Output | Notes |
+| :--- | :--- | :--- | :--- |
+| **MP1584** | 4.5–28 V | 0.8–20 V adj. | Compact, ~2€, 3A |
+| **LM2596** | 4–40 V | 1.5–37 V adj. | Widely available, ~1€ |
+| **XL4016** | 4–40 V | 1.25–36 V adj. | Higher current, ~2€ |
+
+Set the output to **5.0 V** before connecting any components.
 ---
 
 ## Notes on the Optional Winder Add-on
@@ -138,6 +168,53 @@ The ESP32 and logic components run at **3.3 V** (regulated on-board). The steppe
 The winder module connects via a dedicated connector. Its presence is detected via **GPIO05** (pulled high internally; grounded by the add-on connector). When not connected, all winder-related menu items are hidden automatically.
 
 If you are building the winder module, ensure the connector shorts GPIO05 to GND when plugged in.
+
+---
+
+## Connectors & Assembly Options
+
+This project is designed to be built in stages — from a quick breadboard prototype to a finished PCB. The connector choices reflect standard maker inventory.
+
+### Prototyping (Breadboard)
+
+For initial testing, use **Dupont jumper wires** (2.54mm) directly on the breadboard. All components connect via standard 2.54mm headers which are breadboard-compatible.
+
+### Connectors for Permanent Assembly
+
+All connectors are chosen to be compatible with **standard 2.54mm pitch perfboard/stripboard** (the most common prototype PCB kit format).
+
+| Connection | Connector Type | Pitch | Pins | Notes |
+| :--- | :--- | :--- | :---: | :--- |
+| **Load Cell → HX711** | JST XH | 2.54mm | 4 | Red, Black, White, Green |
+| **HX711 → ESP32** | Dupont / Pin Header | 2.54mm | 4 | DT, SCK, VCC, GND |
+| **Display (ST7920)** | Dupont / Pin Header | 2.54mm | 10 | EXP1/EXP2 compatible |
+| **Rotary Encoder** | Dupont / Pin Header | 2.54mm | 5 | CLK, DT, SW, VCC, GND |
+| **Buzzer** | Dupont / Pin Header | 2.54mm | 2 | + / GND |
+| **NFC (PN532)** | Dupont / Pin Header | 2.54mm | 4 | SDA, SCL, VCC, GND |
+| **Stepper Driver** | Dupont / Pin Header | 2.54mm | 4 | STEP, DIR, VDD, GND |
+| **12V Power Input** | Barrel Jack (THT) | — | — | 5.5mm/2.1mm, standard PSU plug |
+| **Motor Power** | Screw Terminal | 5.08mm | 2 | VMOT / GND to stepper driver |
+
+> ℹ️ **JST XH (2.54mm)** is the recommended connector for load cell and sensor connections — it fits standard perfboard and prevents accidental disconnection. Most maker supply stores carry JST XH pre-crimped cables.
+
+> ℹ️ **Barrel Jack (5.5/2.1mm THT)** for 12V input is universally available and compatible with standard power supplies used for 3D printers.
+
+### Ender 3 Display Connector
+
+The Ender 3 / Ender 5 display uses two **10-pin Dupont connectors (2×5, 2.54mm pitch)** labeled EXP1 and EXP2. Standard Dupont housings and pins are used — no special cable required.
+
+```
+EXP1 / EXP2 Pinout (2×5, 2.54mm)
+┌─────────────────────┐
+│ 1  2  3  4  5       │
+│ 6  7  8  9  10      │
+└─────────────────────┘
+Pin 1 = top-left (marked with triangle on PCB)
+```
+
+### Perfboard Compatibility
+
+All connectors use **2.54mm pitch** to match the standard hole spacing of prototype PCB kits (e.g. 2×8cm, 3×7cm, 5×7cm boards). No special tools required beyond a soldering iron.
 
 ---
 ---
@@ -241,7 +318,14 @@ BLA  ──────────►  3,3 V  (Hintergrundbeleuchtung Anode)
 BLK  ──────────►  GND    (Hintergrundbeleuchtung Kathode)
 ```
 
-### Schrittmotor → A4988 → ESP32
+### Schrittmotor → Treiber → ESP32
+
+Sowohl **A4988** als auch **TMC2209** (empfohlen) werden unterstützt. Das STEP/DIR-Interface ist bei beiden identisch — keine Firmware-Änderungen nötig.
+
+| Treiber | Vorteile | Nachteile |
+| :--- | :--- | :--- |
+| **TMC2209** *(empfohlen)* | Sehr leise (StealthChop), Überhitzungsschutz, Überstromschutz | ~3–5€ |
+| **A4988** | Günstig, überall verfügbar | Laut, minimaler Schutz |
 
 ```
 ESP32             A4988          NEMA17
@@ -256,21 +340,45 @@ GND    ────────►  GND (Logik)
                   2A/2B ────► Spule B
 ```
 
-> ⚠️ Den Strombegrenzungspoti des A4988 vor der Inbetriebnahme einstellen, um Überhitzung des Schrittmotors zu vermeiden.
+> ⚠️ Den Strombegrenzungspoti vor dem Anschluss des Schrittmotors einstellen. Beim TMC2209 den Vref-Poti entsprechend dem Nennstrom des Motors einstellen. Beim A4988 den Vref-Wert per Multimeter messen.
 
 ---
 
 ## Stromversorgung
 
-Der ESP32 und die Logikkomponenten laufen mit **3,3 V** (auf dem Board geregelt). Der Schrittmotor benötigt eine separate **12-V-Versorgung**, die direkt am Schrittmotortreiber (VMOT/GND) angeschlossen wird. Den Schrittmotor nicht über die 3,3-V- oder 5-V-Schiene des ESP32 betreiben.
+Dieses Projekt verwendet einen **einzigen 12-V-Eingang** für alle Komponenten. Ein Stepdown-Modul wandelt 12 V auf 5 V für ESP32, Display und Sensoren um. Der ESP32 regelt 5 V intern auf 3,3 V herunter.
 
-> **Note:** Dieser Bereich wird sich vermutlich noch ändern. Ziel ist eine einheitliche 12V Stromversorgung für die gesamte Hardware.
+> ⚠️ Das Ender-3-Display kann **nicht** über den USB-Port des ESP32 betrieben werden — es benötigt eine dedizierte 5-V-Versorgung mit ausreichend Strom. Immer den 12-V-Eingang mit Stepdown-Modul verwenden.
 
-| Schiene | Verbraucher | Empfohlene Versorgung |
+```
+12V Netzteil (Hohlstecker 5,5/2,1mm)
+    ├── Stepdown (12V → 5V) ──► ESP32 VIN
+    │                       ──► ST7920 Display VCC
+    │                       ──► HX711 VCC
+    │                       ──► PN532 NFC VCC
+    │                       ──► Drehgeber VCC
+    │                       ──► Summer
+    │   (ESP32 regelt intern 5V → 3,3V)
+    └── Direkt 12V ──► Schrittmotortreiber VMOT (nur Wickler-Add-on)
+```
+
+| Schiene | Verbraucher | Quelle |
 | :--- | :--- | :--- |
-| 5 V (via USB) | ESP32, HX711, Display, Encoder, Summer | USB-Netzteil ≥ 1 A |
-| 12 V | Schrittmotor (nur Wickler-Add-on) | 12-V-Netzteil / 2 A |
+| **12 V** | Schrittmotor (optional) | 12-V-Netzteil via Hohlstecker |
+| **5 V** | ESP32 (VIN), Display, HX711, PN532, Encoder, Summer | Stepdown-Modul (z.B. MP1584) |
+| **3,3 V** | ESP32-Interna, Sensoren | ESP32 On-Board-Regler |
 
+### Empfohlene Stepdown-Module
+
+Jedes einstellbare Stepdown-Modul ist geeignet. Gängige Optionen:
+
+| Modul | Eingang | Ausgang | Hinweise |
+| :--- | :--- | :--- | :--- |
+| **MP1584** | 4,5–28 V | 0,8–20 V einstellbar | Kompakt, ~2€, 3A |
+| **LM2596** | 4–40 V | 1,5–37 V einstellbar | Weit verbreitet, ~1€ |
+| **XL4016** | 4–40 V | 1,25–36 V einstellbar | Höherer Strom, ~2€ |
+
+Ausgang auf **5,0 V** einstellen **bevor** Komponenten angeschlossen werden.
 ---
 
 ## Hinweise zum optionalen Wickler-Add-on
@@ -278,3 +386,50 @@ Der ESP32 und die Logikkomponenten laufen mit **3,3 V** (auf dem Board geregelt)
 Das Wicklermodul wird über einen dedizierten Stecker verbunden. Seine Anwesenheit wird über **GPIO05** erkannt (intern High gezogen; durch den Add-on-Stecker auf GND gelegt). Ist kein Wickler angesteckt, werden alle Wickler-Menüpunkte automatisch ausgeblendet.
 
 Beim Bau des Wicklermoduls sicherstellen, dass der Stecker GPIO05 im eingesteckten Zustand mit GND verbindet.
+
+---
+ 
+## Steckverbinder & Aufbauoptionen
+ 
+Dieses Projekt ist so konzipiert, dass es stufenweise aufgebaut werden kann — vom schnellen Breadboard-Prototypen bis zur fertigen Platine. Die Steckverbinder entsprechen dem Standard-Maker-Inventar.
+ 
+### Prototyping (Breadboard)
+ 
+Für erste Tests können **Dupont Jumper-Kabel (2.54mm)** direkt auf dem Breadboard verwendet werden. Alle Komponenten nutzen Standard-2.54mm-Stiftleisten, die breadboard-kompatibel sind.
+ 
+### Steckverbinder für den permanenten Aufbau
+ 
+Alle Steckverbinder sind kompatibel mit **Standard-2.54mm-Lochrasterplatinen** (das gängigste Format in Prototypen-PCB-Kits).
+ 
+| Verbindung | Steckverbinder | Raster | Pins | Hinweise |
+| :--- | :--- | :--- | :---: | :--- |
+| **Wägezelle → HX711** | JST XH | 2.54mm | 4 | Rot, Schwarz, Weiß, Grün |
+| **HX711 → ESP32** | Dupont / Stiftleiste | 2.54mm | 4 | DT, SCK, VCC, GND |
+| **Display (ST7920)** | Dupont / Stiftleiste | 2.54mm | 10 | EXP1/EXP2 kompatibel |
+| **Drehgeber (Encoder)** | Dupont / Stiftleiste | 2.54mm | 5 | CLK, DT, SW, VCC, GND |
+| **Summer (Buzzer)** | Dupont / Stiftleiste | 2.54mm | 2 | + / GND |
+| **NFC (PN532)** | Dupont / Stiftleiste | 2.54mm | 4 | SDA, SCL, VCC, GND |
+| **Schrittmotor-Treiber** | Dupont / Stiftleiste | 2.54mm | 4 | STEP, DIR, VDD, GND |
+| **12V Eingang** | Hohlstecker-Buchse (THT) | — | — | 5.5mm/2.1mm, Standard-Netzteilstecker |
+| **Motorstrom** | Schraubklemme | 5.08mm | 2 | VMOT / GND zum Schrittmotortreiber |
+ 
+> ℹ️ **JST XH (2.54mm)** wird für Wägezellen- und Sensoranschlüsse empfohlen — passt auf Lochrasterplatinen und verhindert versehentliches Trennen. In den meisten Maker-Shops gibt es JST XH als vorkonfektionierte Kabel.
+ 
+> ℹ️ **Hohlstecker-Buchse (5.5/2.1mm THT)** für den 12V-Eingang ist universell verfügbar und kompatibel mit Standard-Netzteilen für 3D-Drucker.
+ 
+### Ender 3 Display-Stecker
+ 
+Das Ender 3 / Ender 5 Display verwendet zwei **10-polige Dupont-Stecker (2×5, 2.54mm Raster)**, beschriftet als EXP1 und EXP2. Standard-Dupont-Gehäuse und Pins werden verwendet — kein Spezialkabel erforderlich.
+ 
+```
+EXP1 / EXP2 Belegung (2×5, 2.54mm)
+┌─────────────────────┐
+│ 1  2  3  4  5       │
+│ 6  7  8  9  10      │
+└─────────────────────┘
+Pin 1 = oben links (auf der Platine mit Dreieck markiert)
+```
+ 
+### Lochraster-Kompatibilität
+ 
+Alle Steckverbinder verwenden **2.54mm Raster** passend zum Standard-Lochabstand der gängigen Prototypen-PCB-Kits (z.B. 2×8cm, 3×7cm, 5×7cm Platinen). Kein Spezialwerkzeug erforderlich — nur ein Lötkolben.
