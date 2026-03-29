@@ -10,20 +10,29 @@ This document covers the hardware components used in this project, their wiring,
 
 ## Bill of Materials (BOM)
 
-| Component | Description | Qty |
-| :--- | :--- | :---: |
-| ESP32 Dev Board Mini | e.g. ESP32-WROOM-32 (38-pin) | 1 |
-| HX711 Load Cell Amplifier | 24-bit ADC for load cells | 1 |
-| Load Cell* | 5 or 7 kg, full-bridge | 1 |
-| ST7920 LCD*² | 128×64, SPI mode | 1 |
-| Rotary Encoder*² | With push-button (KY-040 or similar) | 1 |
-| Passive Buzzer*² | 3.3 V compatible | 1 |
-| PN532 NFC | NFC / RFID Modul | 1 |
-| Power Supply | 5 V / 2 A USB or barrel jack | 1 |
+| Component | Description | Qty | Price (approx.) | Link |
+| :--- | :--- | :---: | --: | :-- |
+| ESP32 Dev Board Mini | e.g. ESP32-WROOM-32 (38-pin) | 1 | - | - |
+| **HX711 + Load Cell** | 24-bit ADC for load cells | 1 | 8,98 € | [Amazon ↗](https://amzn.to/4sH5u3X) |
+| **ST7920 LCD** | Ender 3 display, 128×64, SPI | 1 | 17,99 € | [Amazon ↗](https://amzn.to/4bV3Lkr) |
+| **PN532 NFC Module** | incl. NFC card + keyring chip + Dupont set | 1 | 6,50 € * | [Amazon ↗](https://amzn.to/4s40mFX) |
+| PN5180 NFC Modul (v2) | NFC Reader / writer | 1 | - | - |
+| **TMC2209 v2** | Stepper driver incl. heat sink, pre-soldered | 1 | 5,52 € * | [Amazon ↗](https://amzn.to/4sF8td9) |
+<| **NEMA17 Stepper** | 42 Ncm, for optional winder | 1 | 10,50 € | [Amazon ↗](https://amzn.to/48hPeOv) |
+| Power Supply | 12 V | 1 | - | - |
 <!-- | Potentiometer | 10 kΩ linear, for winder speed | 1 | -->
-<!-- | Stepper Motor*² | NEMA 17, for optional winder | 1 | -->
-<!-- | Stepper Driver | A4988 or DRV8825 | 1 | -->
 <!-- | Filament Runout Sensor*² | Mechanical switch or optical | 1 | -->
+
+*\* Price per unit when buying the multi-pack*
+ 
+**Estimated total cost (buying everything):**
+| Configuration | Cost |
+| :--- | ---: |
+| Base (no stepper) | ~**38,94 €** |
+| Full (with stepper) | ~**49,44 €** |
+ 
+> ℹ️ The PN532 pack contains 2 modules — one extra for future use or a second scale. The TMC2209 pack contains 5 — extras are useful for other 3D printer projects.
+
 
 > #### **Dimensions for the Load Cell**
 > * **Overall Dimensions:** 80 mm x 12.7 mm x 12.7 mm
@@ -227,20 +236,28 @@ Dieses Dokument beschreibt die verwendeten Hardware-Komponenten, ihre Verdrahtun
 
 ## Stückliste (BOM)
 
-| Komponente | Beschreibung | Menge |
-| :--- | :--- | :---: |
-| ESP32 Dev Board | z. B. ESP32-WROOM-32 (38-polig) | 1 |
-| HX711 Wägezellenmodul | 24-Bit-ADC für Wägezellen | 1 |
-| Wägezelle* | 1–7 kg, Halb- oder Vollbrücke | 1 |
-| ST7920 LCD*² | 128×64, SPI-Modus | 1 |
-| Drehgeber*² | Mit Druckknopf (KY-040 o. ä.) | 1 |
-| Passiver Summer*² | 3,3 V kompatibel | 1 |
-| PN532 NFC | NFC / RFID Modul | 1 |
-| Netzteil | 5 V / 2 A USB oder Hohlbuchse | 1 |
-<!-- | Potentiometer*² | 10 kΩ linear, für Wicklergeschwindigkeit | 1 | -->
-<!-- | Schrittmotor*² | NEMA 17, für optionalen Wickler | 1 | -->
-<!-- | Schrittmotortreiber | A4988 oder DRV8825 | 1 | -->
-<!-- | Filament-Runout-Sensor*² | Mechanischer Schalter oder optisch | 1 | -->
+| Komponente | Beschreibung | Menge | Preis (ca.) | Link |
+| :--- | :--- | :---: | --: | :-- |
+| ESP32 Dev Board Mini | e.g. ESP32-WROOM-32 (38-pin) | 1 | - | - |
+| **HX711 + 5 kg Wägezelle** | 24-bit ADC for Wägezellen | 1 | 8,98 € | [Amazon ↗](https://amzn.to/4sH5u3X) |
+| **ST7920 LCD** | Ender 3 display, 128×64, SPI | 1 | 17,99 € | [Amazon ↗](https://amzn.to/4bV3Lkr) |
+| **PN532 NFC Modul** (v1) | inkl. NFC Karte + Schlüsselanhänger Chip + Dupont set | 1 | 6,50 € * | [Amazon ↗](https://amzn.to/4s40mFX) |
+| PN5180 NFC Modul (v2) | NFC Leser / schreiber | 1 | - | - |
+| **TMC2209 v2** | Stepper Treiber inkl. heat sink, Vorgelötet | 1 | 5,52 € * | [Amazon ↗](https://amzn.to/4sF8td9) |
+<| **NEMA17 Stepper Motor** | 42 Ncm, für Optionalen Winder | 1 | 10,50 € | [Amazon ↗](https://amzn.to/48hPeOv) |
+| Netzteil | 12 V | 1 | - | - |
+<!-- | Potentiometer | 10 kΩ linear, for winder speed | 1 | -->
+<!-- | Filament Runout Sensor*² | Mechanical switch or optical | 1 | -->
+
+*\* Price per unit when buying the multi-pack*
+ 
+**Estimated total cost (buying everything):**
+| Configuration | Cost |
+| :--- | ---: |
+| Base (no stepper) | ~**38,94 €** |
+| Full (with stepper) | ~**49,44 €** |
+ 
+> ℹ️ The PN532 pack contains 2 modules — one extra for future use or a second scale. The TMC2209 pack contains 5 — extras are useful for other 3D printer projects.
 
 > #### **Abmessungen für die Wägezelle**
 > * **Gesamtmaße:** 80 mm x 12,7 mm x 12,7 mm
