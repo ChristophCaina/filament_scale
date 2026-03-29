@@ -18,7 +18,7 @@ This document covers the hardware components used in this project, their wiring,
 | **PN532 NFC Module** | incl. NFC card + keyring chip + Dupont set | 1 | 6,50 € * | [Amazon ↗](https://amzn.to/4s40mFX) |
 | PN5180 NFC Modul (v2) | NFC Reader / writer | 1 | - | - |
 | **TMC2209 v2** | Stepper driver incl. heat sink, pre-soldered | 1 | 5,52 € * | [Amazon ↗](https://amzn.to/4sF8td9) |
-<| **NEMA17 Stepper** | 42 Ncm, for optional winder | 1 | 10,50 € | [Amazon ↗](https://amzn.to/48hPeOv) |
+| **NEMA17 Stepper** | 42 Ncm, for optional winder | 1 | 10,50 € | [Amazon ↗](https://amzn.to/48hPeOv) |
 | Power Supply | 12 V | 1 | - | - |
 <!-- | Potentiometer | 10 kΩ linear, for winder speed | 1 | -->
 <!-- | Filament Runout Sensor*² | Mechanical switch or optical | 1 | -->
@@ -244,7 +244,7 @@ Dieses Dokument beschreibt die verwendeten Hardware-Komponenten, ihre Verdrahtun
 | **PN532 NFC Modul** (v1) | inkl. NFC Karte + Schlüsselanhänger Chip + Dupont set | 1 | 6,50 € * | [Amazon ↗](https://amzn.to/4s40mFX) |
 | PN5180 NFC Modul (v2) | NFC Leser / schreiber | 1 | - | - |
 | **TMC2209 v2** | Stepper Treiber inkl. heat sink, Vorgelötet | 1 | 5,52 € * | [Amazon ↗](https://amzn.to/4sF8td9) |
-<| **NEMA17 Stepper Motor** | 42 Ncm, für Optionalen Winder | 1 | 10,50 € | [Amazon ↗](https://amzn.to/48hPeOv) |
+| **NEMA17 Stepper Motor** | 42 Ncm, für Optionalen Winder | 1 | 10,50 € | [Amazon ↗](https://amzn.to/48hPeOv) |
 | Netzteil | 12 V | 1 | - | - |
 <!-- | Potentiometer | 10 kΩ linear, for winder speed | 1 | -->
 <!-- | Filament Runout Sensor*² | Mechanical switch or optical | 1 | -->
