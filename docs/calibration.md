@@ -1,4 +1,4 @@
-# ⚖️ Calibration Guide
+# ⚖ Calibration Guide
 
 > 🇩🇪 [Deutsche Version weiter unten](#-kalibrierungsanleitung)
 
@@ -94,7 +94,7 @@ These are also number entities in Home Assistant and stored on the device.
 ---
 ---
 
-# ⚖️ Kalibrierungsanleitung
+# ⚖ Kalibrierungsanleitung
 
 Die Kalibrierung erfolgt vollständig über **Home Assistant** — kein erneutes Flashen oder Bearbeiten von YAML-Dateien erforderlich. Alle Werte werden direkt auf dem Gerät gespeichert und bleiben auch nach einem Neustart erhalten.
 
