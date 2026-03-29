@@ -79,6 +79,7 @@ update:
     source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
 
 packages:
+  filament_scale: !include filament-scale.yaml
   base:     !include common/base.yaml
   scale:    !include common/scale.yaml
   display:  !include common/display.yaml
@@ -86,4 +87,4 @@ packages:
   stepper:  !include common/stepper.yaml
   winder:   !include common/winder.yaml
   sync:     !include common/sync.yaml
-  # nfc:    !include common/nfc.yaml
+  nfc:    !include common/nfc.yaml

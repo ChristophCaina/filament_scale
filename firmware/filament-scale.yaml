@@ -1,32 +1,29 @@
 # ============================================================
-# main.yaml
-# Main configuration file — used for both:
-#   - Web Installer (compiled firmware)
-#   - ESPHome Dashboard Import ("Take Control")
+# filament-scale.yaml
+# Core package — contains ONLY functionality.
 #
-# After "Take Control", adjust the substitutions below to
-# match your hardware (pins, WiFi, IPs, calibration).
+# This file is referenced by:
+#   - factory.yaml  (Web Installer initial flash)
+#   - User's local ESPHome config (after Take Control)
+#
+# Does NOT contain: api, wifi, ota, encryption
+# These live in the user's local config to survive OTA updates.
 # ============================================================
 
 substitutions:
-  # -- Device identity --
-  device_name: "fila-scale"
-  device_friendly_name: "Filament Scale"
+  device_name:    "fila-scale"
+  friendly_name:  "Filament Scale"
   device_comment: "Filament Scale — Spoolman & FilaMan integration"
 
-  # -- ESPHome API & OTA --
-  # After Take Control: ESPHome will auto-generate these.
-  # Replace with !secret api_key / !secret ota_password
-  api_key: ""
-  ota_password: ""
-
   # -- Integration IPs --
-  # Set to your Spoolman / FilaMan instance IP:port
+  # empty = HA entity has priority (Normal User)
+  # set   = substitution overrides on boot (Power User)
   spoolman_ip: ""
-  filaman_ip: ""
+  filaman_ip:  ""
 
   # -- Scale calibration --
-  # Run calibration procedure (see docs/calibration.md) to find your value.
+  # empty = HA entity has priority (Normal User)
+  # set   = substitution overrides on boot (Power User)
   scale_calibration_factor: ""
 
   # -- Pin assignments (default: Ender3/Ender5 display + ESP32 DevKit) --
@@ -49,74 +46,33 @@ substitutions:
   pin_addon_detect:  GPIO05   # Winder add-on detection
 
 esphome:
-  name: ${device_name}
-  friendly_name: ${device_friendly_name}
-  comment: ${device_comment}
-  name_add_mac_suffix: false
-  min_version: "2024.6.0"
+  name:          ${device_name}
+  friendly_name: ${friendly_name}
+  comment:       ${device_comment}
+  min_version:   "2024.6.0"
   project:
-    name: filascale.filamentspoolscale
-    version: "2026.3.2"
- 
-esp32:
-  board: esp32dev
-  framework:
-    type: esp-idf
- 
-# -- WiFi: no credentials — configured via Improv or Captive Portal --
-wifi:
-  ap:
-    ssid: "${device_name} Fallback"
-    password: "filament123"
- 
-# Allow provisioning WiFi via serial (used by ESP Web Tools after flash)
-improv_serial:
- 
-# Allow provisioning WiFi via Bluetooth LE
-esp32_improv:
-  authorizer: none
- 
-# Fallback: connect to AP and configure via browser
-captive_portal:
+    name:        filascale.filamentspoolscale
+    version:     "2026.4.0"
 
-# Enable Web server
-web_server:
-  port: 80
-#  css_include: "web/custom.css"
-  version: 3
-  sorting_groups:
-    - id: group_scale
-      name: "⚖️ Scale"
-      sorting_weight: 1
-    - id: group_sync
-      name: "☁️ Sync"
-      sorting_weight: 2
-    - id: group_config
-      name: "⚙️ Configuration"
-      sorting_weight: 3
-    - id: group_winder
-      name: "🔄 Winder"
-      sorting_weight: 4
+esp32:
+  board:     esp32dev
+  framework:
+    type:    esp-idf
 
 logger:
- 
-api:
- 
-ota:
-  - platform: http_request
-  - platform: esphome
- 
-dashboard_import:
-  package_import_url: github://ChristophCaina/filament_scale/firmware/main.yaml@main
-  import_full_config: false
- 
+
 http_request:
   verify_ssl: false
- 
+
+web_server:
+  port:    80
+  version: 3
+  log:     true
+
 update:
   - platform: http_request
-    name: "${device_name} Firmware Update"
-    source: https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
+    name:     "${device_name} Firmware Update"
+    source:   https://christophcaina.github.io/filament_scale/firmware-builds/manifest-scale.json
 
 packages:
   base:     github://ChristophCaina/filament_scale/firmware/common/base.yaml@main
